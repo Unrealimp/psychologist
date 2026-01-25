@@ -9,6 +9,23 @@ export function AdminPage() {
   const { siteData, updateSiteData } = useSiteData();
   const [formData, setFormData] = useState(siteData);
 
+  const handleProfileImageUpload = (file: File | null) => {
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setFormData(prev => ({
+          ...prev,
+          profileImageUrl: reader.result
+        }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateSiteData(formData);
@@ -93,6 +110,39 @@ export function AdminPage() {
                   onChange={(e) => setFormData({ ...formData, psychologistName: e.target.value })}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm mb-2">Фотография профиля</label>
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="h-24 w-24 overflow-hidden rounded-xl border bg-gray-50">
+                      <img
+                        src={formData.profileImageUrl}
+                        alt={`Психолог ${formData.psychologistName}`}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 space-y-3">
+                      <input
+                        type="url"
+                        value={formData.profileImageUrl}
+                        onChange={(e) => setFormData({ ...formData, profileImageUrl: e.target.value })}
+                        placeholder="Ссылка на изображение"
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleProfileImageUpload(e.target.files?.[0] ?? null)}
+                        className="w-full text-sm text-gray-600 file:mr-4 file:rounded-lg file:border-0 file:bg-teal-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-teal-700 hover:file:bg-teal-100"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Можно указать ссылку или загрузить файл — изображение сохранится в браузере.
+                  </p>
+                </div>
               </div>
               
               <div>
