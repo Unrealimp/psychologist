@@ -8,4 +8,14 @@
   Run `npm i` to install the dependencies.
 
   Run `npm run dev` to start the development server.
+
+  ### Admin password
+
+  Create a `.env` file with `VITE_ADMIN_PASSWORD` (see `.env.example`) to set the admin password.
+
+  ### Production build
+
+  Run `npm run build` to create the production build.
+
+  Run `npm run preview` to serve the production build locally.
   
