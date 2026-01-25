@@ -33,13 +33,13 @@ export interface SiteData {
 }
 
 const defaultSiteData: SiteData = {
-  psychologistName: 'Анна Смирнова',
+  psychologistName: 'Диана Попович',
   profileImageUrl: 'https://images.unsplash.com/photo-1669627961229-987550948857?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwc3ljaG9sb2dpc3QlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjkzMTY1NDd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-  heroTitle: 'Путь к гармонии начинается здесь',
-  heroDescription: 'Профессиональная психологическая помощь для взрослых и подростков. Индивидуальный подход, конфиденциальность, результат.',
-  yearsOfExperience: '10+',
+  heroTitle: 'Ваш путь к внутреннему равновесию',
+  heroDescription: 'Психолог Диана Попович. Индивидуальные консультации для взрослых и подростков: тревога, стресс, отношения, самооценка.',
+  yearsOfExperience: '12+',
   aboutTitle: 'Обо мне',
-  aboutDescription1: 'Здравствуйте! Я Анна Смирнова, практикующий психолог с более чем 10-летним опытом работы. Моя специализация — помощь людям в преодолении эмоциональных трудностей, работа с тревогой, депрессией, отношениями и самооценкой.',
+  aboutDescription1: 'Здравствуйте! Я Диана Попович, практикующий психолог с более чем 12-летним опытом работы. Моя специализация — помощь людям в преодолении эмоциональных трудностей, работа с тревогой, депрессией, отношениями и самооценкой.',
   aboutDescription2: 'Я использую современные методы психотерапии, включая когнитивно-поведенческую терапию (КПТ) и гештальт-подход. Верю, что каждый человек обладает ресурсами для изменений, а моя задача — помочь их раскрыть.',
   aboutDescription3: 'Работаю как очно в Москве, так и онлайн, что позволяет получать помощь независимо от вашего местоположения. Гарантирую полную конфиденциальность и безопасное пространство для ваших переживаний.',
   education: [
@@ -104,7 +104,7 @@ const defaultSiteData: SiteData = {
   ],
   contactInfo: {
     phone: '+7 (925) 123-45-67',
-    email: 'anna.smirnova@psychology.ru',
+    email: 'diana.popovich@psychology.ru',
     address: 'Москва, ул. Арбат, д. 15',
     workHours: 'Пн-Пт: 10:00-20:00, Сб: 11:00-17:00'
   }
@@ -112,23 +112,70 @@ const defaultSiteData: SiteData = {
 
 interface SiteDataContextType {
   siteData: SiteData;
-  updateSiteData: (data: Partial<SiteData>) => void;
+  updateSiteData: (data: Partial<SiteData>) => Promise<boolean>;
 }
 
 const SiteDataContext = createContext<SiteDataContextType | undefined>(undefined);
 
 export function SiteDataProvider({ children }: { children: ReactNode }) {
-  const [siteData, setSiteData] = useState<SiteData>(() => {
-    const saved = localStorage.getItem('siteData');
-    return saved ? JSON.parse(saved) : defaultSiteData;
-  });
+  const [siteData, setSiteData] = useState<SiteData>(defaultSiteData);
+  const apiBase = import.meta.env.VITE_API_URL ?? '';
+  const useServer = !import.meta.env.DEV || Boolean(import.meta.env.VITE_API_URL);
 
   useEffect(() => {
-    localStorage.setItem('siteData', JSON.stringify(siteData));
-  }, [siteData]);
+    let isMounted = true;
+    const loadData = async () => {
+      if (!useServer) {
+        const saved = localStorage.getItem('siteData');
+        if (saved && isMounted) {
+          setSiteData(JSON.parse(saved));
+        }
+        return;
+      }
+      try {
+        const response = await fetch(`${apiBase}/api/site-data`);
+        if (!response.ok) {
+          throw new Error('Failed to load site data');
+        }
+        const data = (await response.json()) as SiteData;
+        if (isMounted) {
+          setSiteData(data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    void loadData();
+    return () => {
+      isMounted = false;
+    };
+  }, [apiBase, useServer]);
 
-  const updateSiteData = (data: Partial<SiteData>) => {
-    setSiteData(prev => ({ ...prev, ...data }));
+  const updateSiteData = async (data: Partial<SiteData>) => {
+    if (!useServer) {
+      setSiteData(prev => {
+        const next = { ...prev, ...data };
+        localStorage.setItem('siteData', JSON.stringify(next));
+        return next;
+      });
+      return true;
+    }
+    try {
+      const response = await fetch(`${apiBase}/api/site-data`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update site data');
+      }
+      const updated = (await response.json()) as SiteData;
+      setSiteData(updated);
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
   };
 
   return (
