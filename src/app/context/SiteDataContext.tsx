@@ -18,6 +18,7 @@ export interface ContactInfo {
 
 export interface SiteData {
   psychologistName: string;
+  profileImageUrl: string;
   heroTitle: string;
   heroDescription: string;
   yearsOfExperience: string;
@@ -33,6 +34,7 @@ export interface SiteData {
 
 const defaultSiteData: SiteData = {
   psychologistName: 'Анна Смирнова',
+  profileImageUrl: 'https://images.unsplash.com/photo-1669627961229-987550948857?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwc3ljaG9sb2dpc3QlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjkzMTY1NDd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
   heroTitle: 'Путь к гармонии начинается здесь',
   heroDescription: 'Профессиональная психологическая помощь для взрослых и подростков. Индивидуальный подход, конфиденциальность, результат.',
   yearsOfExperience: '10+',

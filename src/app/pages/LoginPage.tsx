@@ -6,12 +6,18 @@ import { Lock } from 'lucide-react';
 export function LoginPage() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Простая проверка пароля (в реальном приложении используйте более безопасный подход)
-    if (password === 'admin123') {
+    if (!adminPassword) {
+      toast.error('Пароль для админ-панели не настроен');
+      return;
+    }
+
+    if (password === adminPassword) {
       localStorage.setItem('adminAuth', 'true');
       navigate('/admin');
     } else {
@@ -63,11 +69,13 @@ export function LoginPage() {
             </button>
           </div>
 
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-600 text-center">
-              Демо-пароль: <span className="font-mono bg-white px-2 py-1 rounded">admin123</span>
-            </p>
-          </div>
+          {!adminPassword && (
+            <div className="mt-6 p-4 bg-amber-50 rounded-lg">
+              <p className="text-xs text-amber-700 text-center">
+                Добавьте VITE_ADMIN_PASSWORD в .env, чтобы включить вход.
+              </p>
+            </div>
+          )}
         </form>
       </div>
     </div>
