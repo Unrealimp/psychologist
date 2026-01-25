@@ -112,23 +112,53 @@ const defaultSiteData: SiteData = {
 
 interface SiteDataContextType {
   siteData: SiteData;
-  updateSiteData: (data: Partial<SiteData>) => void;
+  updateSiteData: (data: Partial<SiteData>) => Promise<boolean>;
 }
 
 const SiteDataContext = createContext<SiteDataContextType | undefined>(undefined);
 
 export function SiteDataProvider({ children }: { children: ReactNode }) {
-  const [siteData, setSiteData] = useState<SiteData>(() => {
-    const saved = localStorage.getItem('siteData');
-    return saved ? JSON.parse(saved) : defaultSiteData;
-  });
+  const [siteData, setSiteData] = useState<SiteData>(defaultSiteData);
 
   useEffect(() => {
-    localStorage.setItem('siteData', JSON.stringify(siteData));
-  }, [siteData]);
+    let isMounted = true;
+    const loadData = async () => {
+      try {
+        const response = await fetch('/api/site-data');
+        if (!response.ok) {
+          throw new Error('Failed to load site data');
+        }
+        const data = (await response.json()) as SiteData;
+        if (isMounted) {
+          setSiteData(data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    void loadData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
-  const updateSiteData = (data: Partial<SiteData>) => {
-    setSiteData(prev => ({ ...prev, ...data }));
+  const updateSiteData = async (data: Partial<SiteData>) => {
+    try {
+      const response = await fetch('/api/site-data', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update site data');
+      }
+      const updated = (await response.json()) as SiteData;
+      setSiteData(updated);
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
   };
 
   return (
