@@ -1,0 +1,56 @@
+import { useSiteData } from '@/app/context/SiteDataContext';
+
+export function Hero() {
+  const { siteData } = useSiteData();
+  
+  const scrollToContact = () => {
+    const element = document.getElementById('contact');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <section id="home" className="pt-16 bg-gradient-to-br from-teal-50 via-white to-blue-50 min-h-screen flex items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl text-gray-900">
+              {siteData.heroTitle}
+            </h1>
+            <p className="text-lg sm:text-xl text-gray-600">
+              {siteData.heroDescription}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={scrollToContact}
+                className="px-8 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+              >
+                Записаться на консультацию
+              </button>
+              <button
+                onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+                className="px-8 py-3 border-2 border-teal-600 text-teal-600 rounded-lg hover:bg-teal-50 transition-colors"
+              >
+                Узнать больше
+              </button>
+            </div>
+          </div>
+          <div className="relative">
+            <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
+              <img
+                src="https://images.unsplash.com/photo-1669627961229-987550948857?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwc3ljaG9sb2dpc3QlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjkzMTY1NDd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                alt={`Психолог ${siteData.psychologistName}`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-xl shadow-lg">
+              <div className="text-3xl text-teal-600">{siteData.yearsOfExperience}</div>
+              <div className="text-sm text-gray-600">лет опыта</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
