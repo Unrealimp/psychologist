@@ -128,12 +128,14 @@ const defaultSiteData = {
   }
 };
 
+const MAX_BODY_SIZE = 5_000_000;
+
 const readRequestBody = (req) =>
   new Promise((resolve, reject) => {
     let data = '';
     req.on('data', (chunk) => {
       data += chunk;
-      if (data.length > 1_000_000) {
+      if (data.length > MAX_BODY_SIZE) {
         reject(new Error('Payload too large'));
         req.destroy();
       }
