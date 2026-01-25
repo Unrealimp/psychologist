@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSiteData } from '@/app/context/SiteDataContext';
 import { toast } from 'sonner';
@@ -8,6 +8,11 @@ export function AdminPage() {
   const navigate = useNavigate();
   const { siteData, updateSiteData } = useSiteData();
   const [formData, setFormData] = useState(siteData);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    setFormData(siteData);
+  }, [siteData]);
 
   const handleProfileImageUpload = (file: File | null) => {
     if (!file) {
@@ -26,10 +31,16 @@ export function AdminPage() {
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateSiteData(formData);
-    toast.success('Изменения сохранены!');
+    setIsSaving(true);
+    const ok = await updateSiteData(formData);
+    setIsSaving(false);
+    if (ok) {
+      toast.success('Изменения сохранены!');
+    } else {
+      toast.error('Не удалось сохранить изменения. Попробуйте снова.');
+    }
   };
 
   const handleAddService = () => {
@@ -381,10 +392,11 @@ export function AdminPage() {
           <div className="sticky bottom-4 bg-white rounded-lg shadow-lg p-4">
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 px-8 py-4 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-8 py-4 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:cursor-not-allowed disabled:opacity-70"
+              disabled={isSaving}
             >
               <Save size={20} />
-              Сохранить изменения
+              {isSaving ? 'Сохранение...' : 'Сохранить изменения'}
             </button>
           </div>
         </form>
