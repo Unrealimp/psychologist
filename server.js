@@ -246,6 +246,10 @@ const getContentType = (filePath) => {
       return 'text/css';
     case '.json':
       return 'application/json';
+    case '.txt':
+      return 'text/plain';
+    case '.xml':
+      return 'application/xml';
     case '.svg':
       return 'image/svg+xml';
     case '.png':
@@ -375,6 +379,12 @@ const server = http.createServer(async (req, res) => {
   };
 
   if (serveFile(filePath)) {
+    return;
+  }
+
+  if (safePath === '/robots.txt' || safePath === '/sitemap.xml') {
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Not found');
     return;
   }
 
