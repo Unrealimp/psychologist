@@ -119,7 +119,7 @@ export function Contact() {
               <div className="space-y-2 text-teal-50">
                 <p>✓ Продолжительность: 50 минут</p>
                 <p>✓ Стоимость: 5000 ₽</p>
-                <p>✓ Онлайн или очно</p>
+                <p>✓ Онлайн</p>
               </div>
             </div>
 
