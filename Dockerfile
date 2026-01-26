@@ -1,3 +1,4 @@
+# ---------- build ----------
 FROM node:20-alpine AS build
 
 WORKDIR /app
@@ -6,24 +7,16 @@ RUN npm ci
 
 COPY . .
 
-# Build-time env for Vite
-ARG VITE_ADMIN_PASSWORD
-ENV VITE_ADMIN_PASSWORD="${VITE_ADMIN_PASSWORD}"
-
-# TEMP DEBUG (уберёшь после успешной проверки)
-RUN echo "BUILD VITE_ADMIN_PASSWORD=${VITE_ADMIN_PASSWORD}"
-
+# ВАЖНО:
+# никаких секретов через VITE_* — они попадут в браузерный бандл
 RUN npm run build
 
 
+# ---------- runtime ----------
 FROM node:20-alpine
 
 WORKDIR /app
 ENV NODE_ENV=production
-
-# (опционально) если server.js тоже может читать это значение
-ARG VITE_ADMIN_PASSWORD
-ENV VITE_ADMIN_PASSWORD="${VITE_ADMIN_PASSWORD}"
 
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev

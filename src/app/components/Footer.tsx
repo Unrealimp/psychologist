@@ -33,7 +33,7 @@ export function Footer() {
                   onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
                   className="hover:text-teal-400 transition-colors"
                 >
-                  О мне
+                  О себе
                 </button>
               </li>
               <li>

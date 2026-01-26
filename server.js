@@ -3,6 +3,7 @@ import http from 'http';
 import net from 'net';
 import path from 'path';
 import tls from 'tls';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -11,22 +12,26 @@ const distPath = path.join(__dirname, 'dist');
 const dataDir = path.join(__dirname, 'data');
 const siteDataPath = path.join(dataDir, 'site-data.json');
 
+/**
+ * Локальная удобняшка для разработки без Docker.
+ * В Docker правильнее передавать env через docker-compose (environment/env_file),
+ * а .env внутрь образа не копировать.
+ */
 const loadEnv = () => {
   const envPath = path.join(__dirname, '.env');
-  if (!fs.existsSync(envPath)) {
-    return;
-  }
+  if (!fs.existsSync(envPath)) return;
+
   const lines = fs.readFileSync(envPath, 'utf8').split('\n');
   for (const line of lines) {
     const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) {
-      continue;
-    }
+    if (!trimmed || trimmed.startsWith('#')) continue;
+
     const [key, ...rest] = trimmed.split('=');
-    if (!key) {
-      continue;
-    }
+    if (!key) continue;
+
     const value = rest.join('=').trim();
+
+    // не перетираем то, что уже пришло из окружения (docker-compose)
     if (!process.env[key]) {
       process.env[key] = value;
     }
@@ -35,25 +40,49 @@ const loadEnv = () => {
 
 loadEnv();
 
-const requiredEnv = [
-  'SMTP_HOST',
-  'SMTP_PORT',
-  'SMTP_USER',
-  'SMTP_PASSWORD',
-  'CONTACT_TO'
-];
+/** --- Admin auth (пароль хранится только на сервере) --- */
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN || ''; // опционально: фиксированный токен из env
+let runtimeToken = ADMIN_TOKEN || ''; // если пусто — сгенерируем при успешном логине
 
+const json = (res, status, payload) => {
+  res.writeHead(status, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(payload));
+};
+
+const safeEqual = (a, b) => {
+  const aa = Buffer.from(String(a));
+  const bb = Buffer.from(String(b));
+  if (aa.length !== bb.length) return false;
+  return crypto.timingSafeEqual(aa, bb);
+};
+
+const getBearerToken = (req) => {
+  const h = req.headers['authorization'];
+  if (!h) return '';
+  const m = /^Bearer\s+(.+)$/i.exec(String(h));
+  return m?.[1] || '';
+};
+
+const requireAdmin = (req) => {
+  const token = getBearerToken(req);
+  if (!token) return false;
+  if (!runtimeToken) return false;
+  return safeEqual(token, runtimeToken);
+};
+
+/** --- SMTP env required for /api/contact --- */
+const requiredEnv = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASSWORD', 'CONTACT_TO'];
 const missingEnv = requiredEnv.filter((key) => !process.env[key]);
 
 const defaultSiteData = {
   psychologistName: 'Диана Попович',
-  profileImageUrl:
-    'https://images.unsplash.com/photo-1669627961229-987550948857?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwc3ljaG9sb2dpc3QlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjkzMTY1NDd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+  profileImageUrl: '/images/profile.jpg',
   heroTitle: 'Ваш путь к внутреннему равновесию',
   heroDescription:
     'Психолог Диана Попович. Индивидуальные консультации для взрослых и подростков: тревога, стресс, отношения, самооценка.',
   yearsOfExperience: '12+',
-  aboutTitle: 'Обо мне',
+  aboutTitle: 'О себе',
   aboutDescription1:
     'Здравствуйте! Я Диана Попович, практикующий психолог с более чем 12-летним опытом работы. Моя специализация — помощь людям в преодолении эмоциональных трудностей, работа с тревогой, депрессией, отношениями и самооценкой.',
   aboutDescription2:
@@ -167,9 +196,7 @@ const sendSmtpMail = async ({ name, email, phone, message }) => {
         const lines = buffer.split('\r\n');
         buffer = lines.pop() ?? '';
         for (const line of lines) {
-          if (!line) {
-            continue;
-          }
+          if (!line) continue;
           const code = line.slice(0, 3);
           const isLast = line[3] !== '-';
           if (isLast && code === expectedCode) {
@@ -300,57 +327,79 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  /** --- Admin login --- */
+  if (req.method === 'POST' && req.url === '/api/admin/login') {
+    if (!ADMIN_PASSWORD) {
+      return json(res, 500, { error: 'ADMIN_PASSWORD не настроен на сервере' });
+    }
+    try {
+      const body = await readRequestBody(req);
+      const { password } = JSON.parse(body || '{}');
+
+      if (!password) {
+        return json(res, 400, { error: 'Пароль обязателен' });
+      }
+
+      if (!safeEqual(password, ADMIN_PASSWORD)) {
+        return json(res, 401, { error: 'Неверный пароль' });
+      }
+
+      if (!runtimeToken) {
+        runtimeToken = crypto.randomBytes(32).toString('hex');
+      }
+
+      return json(res, 200, { ok: true, token: runtimeToken });
+    } catch (e) {
+      return json(res, 400, { error: 'Некорректный JSON' });
+    }
+  }
+
+  /** --- Contact form --- */
   if (req.method === 'POST' && req.url === '/api/contact') {
     if (missingEnv.length > 0) {
-      res.writeHead(500, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: `Missing env: ${missingEnv.join(', ')}` }));
-      return;
+      return json(res, 500, { error: `Missing env: ${missingEnv.join(', ')}` });
     }
 
     try {
       const body = await readRequestBody(req);
       const { name, email, phone, message } = JSON.parse(body || '{}');
       if (!name || !email || !phone) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Missing required fields' }));
-        return;
+        return json(res, 400, { error: 'Missing required fields' });
       }
 
       await sendSmtpMail({ name, email, phone, message });
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ok: true }));
+      return json(res, 200, { ok: true });
     } catch (error) {
-      res.writeHead(500, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Failed to send message' }));
+      return json(res, 500, { error: 'Failed to send message' });
     }
-    return;
   }
 
+  /** --- Site data API --- */
   if (req.url === '/api/site-data') {
     if (req.method === 'GET') {
       const data = loadSiteData();
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(data));
-      return;
+      return json(res, 200, data);
     }
 
     if (req.method === 'PUT') {
+      if (!requireAdmin(req)) {
+        return json(res, 401, { error: 'Unauthorized' });
+      }
+
       try {
         const body = await readRequestBody(req);
         const updates = JSON.parse(body || '{}');
         const current = loadSiteData();
         const next = { ...current, ...updates };
         saveSiteData(next);
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(next));
+        return json(res, 200, next);
       } catch (error) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Invalid site data payload' }));
+        return json(res, 400, { error: 'Invalid site data payload' });
       }
-      return;
     }
   }
 
+  /** --- Static serving --- */
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.writeHead(405);
     res.end();
@@ -361,26 +410,23 @@ const server = http.createServer(async (req, res) => {
   const filePath = path.join(distPath, safePath === '/' ? 'index.html' : safePath);
 
   const serveFile = (targetPath) => {
-    if (!fs.existsSync(targetPath)) {
-      return false;
-    }
+    if (!fs.existsSync(targetPath)) return false;
     const stat = fs.statSync(targetPath);
-    if (!stat.isFile()) {
-      return false;
-    }
+    if (!stat.isFile()) return false;
+
     const contentType = getContentType(targetPath);
     res.writeHead(200, { 'Content-Type': contentType });
+
     if (req.method === 'HEAD') {
       res.end();
       return true;
     }
+
     fs.createReadStream(targetPath).pipe(res);
     return true;
   };
 
-  if (serveFile(filePath)) {
-    return;
-  }
+  if (serveFile(filePath)) return;
 
   if (safePath === '/robots.txt' || safePath === '/sitemap.xml') {
     res.writeHead(404, { 'Content-Type': 'text/plain' });
@@ -389,9 +435,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   const indexPath = path.join(distPath, 'index.html');
-  if (serveFile(indexPath)) {
-    return;
-  }
+  if (serveFile(indexPath)) return;
 
   res.writeHead(404);
   res.end();
@@ -399,6 +443,9 @@ const server = http.createServer(async (req, res) => {
 
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
+  if (!ADMIN_PASSWORD) {
+    console.warn('ADMIN_PASSWORD is not set (admin login disabled).');
+  }
   if (missingEnv.length > 0) {
     console.warn(`Missing environment variables: ${missingEnv.join(', ')}`);
   }

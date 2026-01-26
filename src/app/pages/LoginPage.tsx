@@ -5,23 +5,35 @@ import { Lock } from 'lucide-react';
 
 export function LoginPage() {
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Простая проверка пароля (в реальном приложении используйте более безопасный подход)
-    if (!adminPassword) {
-      toast.error('Пароль для админ-панели не настроен');
-      return;
-    }
 
-    if (password === adminPassword) {
-      localStorage.setItem('adminAuth', 'true');
+    try {
+      setLoading(true);
+
+      const resp = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+
+      const data = await resp.json().catch(() => ({}));
+
+      if (!resp.ok) {
+        toast.error(data?.error || 'Ошибка авторизации');
+        return;
+      }
+
+      // Сервер выдал токен — храним его
+      localStorage.setItem('adminToken', data.token);
       navigate('/admin');
-    } else {
-      toast.error('Неверный пароль');
+    } catch (err) {
+      toast.error('Не удалось подключиться к серверу');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,14 +61,16 @@ export function LoginPage() {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
               placeholder="Введите пароль"
               required
+              disabled={loading}
             />
           </div>
 
           <button
             type="submit"
-            className="w-full px-8 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+            disabled={loading}
+            className="w-full px-8 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-60"
           >
-            Войти
+            {loading ? 'Проверяем…' : 'Войти'}
           </button>
 
           <div className="text-center">
@@ -68,14 +82,6 @@ export function LoginPage() {
               Вернуться на сайт
             </button>
           </div>
-
-          {!adminPassword && (
-            <div className="mt-6 p-4 bg-amber-50 rounded-lg">
-              <p className="text-xs text-amber-700 text-center">
-                Добавьте VITE_ADMIN_PASSWORD в .env, чтобы включить вход.
-              </p>
-            </div>
-          )}
         </form>
       </div>
     </div>

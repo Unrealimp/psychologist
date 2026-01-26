@@ -34,7 +34,7 @@ export function Header() {
               onClick={() => scrollToSection('about')}
               className="text-gray-700 hover:text-teal-600 transition-colors"
             >
-              О мне
+              О себе
             </button>
             <button
               onClick={() => scrollToSection('services')}
@@ -72,7 +72,7 @@ export function Header() {
               onClick={() => scrollToSection('about')}
               className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              О мне
+              О себе
             </button>
             <button
               onClick={() => scrollToSection('services')}
