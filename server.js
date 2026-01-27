@@ -266,9 +266,7 @@ const isUiText = (value) =>
   isString(value.hero.secondaryCta) &&
   isString(value.hero.experienceLabel) &&
   isObject(value.about) &&
-  isString(value.about.intro) &&
   isString(value.about.educationTitle) &&
-  isString(value.about.membershipTitle) &&
   Array.isArray(value.about.highlights) &&
   value.about.highlights.every(isAboutHighlight) &&
   isObject(value.services) &&
@@ -346,9 +344,7 @@ const validateUiTextUpdate = (value) => {
   if (value.about !== undefined) {
     if (
       !isObject(value.about) ||
-      (value.about.intro !== undefined && !isString(value.about.intro)) ||
       (value.about.educationTitle !== undefined && !isString(value.about.educationTitle)) ||
-      (value.about.membershipTitle !== undefined && !isString(value.about.membershipTitle)) ||
       (value.about.highlights !== undefined &&
         (!Array.isArray(value.about.highlights) || !value.about.highlights.every(isAboutHighlight)))
     ) {
@@ -447,7 +443,6 @@ const isSiteData = (value) =>
   isString(value.aboutDescription2) &&
   isString(value.aboutDescription3) &&
   isStringArray(value.education) &&
-  isStringArray(value.membership) &&
   isServiceArray(value.services) &&
   isContactInfo(value.contactInfo) &&
   isUiText(value.uiText);
@@ -474,7 +469,6 @@ const validateSiteDataUpdate = (updates) => {
     'aboutDescription2',
     'aboutDescription3',
     'education',
-    'membership',
     'services',
     'contactInfo',
     'uiText'
@@ -515,9 +509,6 @@ const validateSiteDataUpdate = (updates) => {
   }
   if (updates.education !== undefined && !isStringArray(updates.education)) {
     return { ok: false, error: 'Invalid education' };
-  }
-  if (updates.membership !== undefined && !isStringArray(updates.membership)) {
-    return { ok: false, error: 'Invalid membership' };
   }
   if (updates.services !== undefined && !isServiceArray(updates.services)) {
     return { ok: false, error: 'Invalid services' };
