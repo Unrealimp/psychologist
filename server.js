@@ -41,8 +41,8 @@ const loadEnv = () => {
 loadEnv();
 
 /** --- Admin auth (пароль хранится только на сервере) --- */
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN || ''; // опционально: фиксированный токен из env
+const ADMIN_PASSWORD = (process.env.ADMIN_PASSWORD || '').trim();
+const ADMIN_TOKEN = (process.env.ADMIN_TOKEN || '').trim();
 let runtimeToken = ADMIN_TOKEN || ''; // если пусто — сгенерируем при успешном логине
 
 const json = (res, status, payload) => {
