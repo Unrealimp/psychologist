@@ -11,6 +11,7 @@ const __dirname = path.dirname(__filename);
 const distPath = path.join(__dirname, 'dist');
 const dataDir = path.join(__dirname, 'data');
 const siteDataPath = path.join(dataDir, 'site-data.json');
+const siteDataTemplatePath = path.join(dataDir, 'site-data.template.json');
 
 /**
  * Локальная удобняшка для разработки без Docker.
@@ -74,88 +75,6 @@ const requireAdmin = (req) => {
 /** --- SMTP env required for /api/contact --- */
 const requiredEnv = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASSWORD', 'CONTACT_TO'];
 const missingEnv = requiredEnv.filter((key) => !process.env[key]);
-
-const defaultSiteData = {
-  psychologistName: 'Диана Попович',
-  profileImageUrl: '/images/profile.webp',
-  heroTitle: 'Ваш путь к внутреннему равновесию',
-  heroDescription:
-    'Психолог Диана Попович. Индивидуальные консультации для взрослых и подростков: тревога, стресс, отношения, самооценка.',
-  yearsOfExperience: '12+',
-  aboutTitle: 'О себе',
-  aboutDescription1:
-    'Здравствуйте! Я Диана Попович, практикующий психолог с более чем 12-летним опытом работы. Моя специализация — помощь людям в преодолении эмоциональных трудностей, работа с тревогой, депрессией, отношениями и самооценкой.',
-  aboutDescription2:
-    'Я использую современные методы психотерапии, включая когнитивно-поведенческую терапию (КПТ) и гештальт-подход. Верю, что каждый человек обладает ресурсами для изменений, а моя задача — помочь их раскрыть.',
-  aboutDescription3:
-    'Работаю как очно в Москве, так и онлайн, что позволяет получать помощь независимо от вашего местоположения. Гарантирую полную конфиденциальность и безопасное пространство для ваших переживаний.',
-  education: [
-    'МГУ им. М.В. Ломоносова, факультет психологии',
-    'Сертификация по когнитивно-поведенческой терапии',
-    'Обучение гештальт-терапии (4 года)',
-    'Регулярная супервизия и повышение квалификации'
-  ],
-  membership: [
-    'Российское психологическое общество',
-    'Ассоциация когнитивно-поведенческой психотерапии'
-  ],
-  services: [
-    {
-      id: '1',
-      icon: 'Brain',
-      title: 'Работа с тревогой и стрессом',
-      description: 'Помощь в преодолении тревожных состояний, панических атак и хронического стресса',
-      duration: '50 минут',
-      price: '5000 ₽'
-    },
-    {
-      id: '2',
-      icon: 'HeartHandshake',
-      title: 'Консультирование по отношениям',
-      description: 'Работа с трудностями в паре, семейные конфликты, вопросы расставания',
-      duration: '50 минут',
-      price: '5000 ₽'
-    },
-    {
-      id: '3',
-      icon: 'Smile',
-      title: 'Самооценка и самопринятие',
-      description: 'Работа с самооценкой, внутренним критиком, поиск себя',
-      duration: '50 минут',
-      price: '5000 ₽'
-    },
-    {
-      id: '4',
-      icon: 'Shield',
-      title: 'Преодоление депрессии',
-      description: 'Поддержка при депрессивных состояниях, апатии, потере смысла',
-      duration: '50 минут',
-      price: '5000 ₽'
-    },
-    {
-      id: '5',
-      icon: 'Users',
-      title: 'Работа с подростками',
-      description: 'Помощь подросткам в период взросления, школьные трудности, конфликты',
-      duration: '50 минут',
-      price: '4500 ₽'
-    },
-    {
-      id: '6',
-      icon: 'Lightbulb',
-      title: 'Личностный рост',
-      description: 'Раскрытие потенциала, поиск жизненного пути, принятие решений',
-      duration: '50 минут',
-      price: '5000 ₽'
-    }
-  ],
-  contactInfo: {
-    phone: '+7 (925) 123-45-67',
-    email: 'diana.popovich@psychology.ru',
-    address: 'Москва, ул. Арбат, д. 15',
-    workHours: 'Пн-Пт: 10:00-20:00, Сб: 11:00-17:00'
-  }
-};
 
 const MAX_BODY_SIZE = 5_000_000;
 
@@ -297,17 +216,338 @@ const ensureDataDir = () => {
   }
 };
 
-const loadSiteData = () => {
-  try {
-    if (!fs.existsSync(siteDataPath)) {
-      return defaultSiteData;
-    }
-    const raw = fs.readFileSync(siteDataPath, 'utf8');
-    return JSON.parse(raw);
-  } catch (error) {
-    console.error('Failed to read site data:', error);
-    return defaultSiteData;
+const loadJsonFile = (filePath) => {
+  const raw = fs.readFileSync(filePath, 'utf8');
+  return JSON.parse(raw);
+};
+
+const isString = (value) => typeof value === 'string';
+const isObject = (value) => value && typeof value === 'object' && !Array.isArray(value);
+
+const isStringArray = (value) =>
+  Array.isArray(value) && value.every((item) => typeof item === 'string');
+
+const isService = (value) =>
+  isObject(value) &&
+  isString(value.id) &&
+  isString(value.icon) &&
+  isString(value.title) &&
+  isString(value.description) &&
+  isString(value.duration) &&
+  isString(value.price);
+
+const isServiceArray = (value) => Array.isArray(value) && value.every(isService);
+
+const isContactInfo = (value) =>
+  isObject(value) &&
+  isString(value.phone) &&
+  isString(value.email) &&
+  isString(value.address) &&
+  isString(value.workHours);
+
+const isAboutHighlight = (value) =>
+  isObject(value) && isString(value.icon) && isString(value.title) && isString(value.description);
+
+const isWorkFormat = (value) =>
+  isObject(value) &&
+  isString(value.title) &&
+  isString(value.description) &&
+  isStringArray(value.bullets);
+
+const isUiText = (value) =>
+  isObject(value) &&
+  isObject(value.navigation) &&
+  isString(value.navigation.home) &&
+  isString(value.navigation.about) &&
+  isString(value.navigation.services) &&
+  isString(value.navigation.contact) &&
+  isObject(value.hero) &&
+  isString(value.hero.primaryCta) &&
+  isString(value.hero.secondaryCta) &&
+  isString(value.hero.experienceLabel) &&
+  isObject(value.about) &&
+  isString(value.about.intro) &&
+  isString(value.about.educationTitle) &&
+  isString(value.about.membershipTitle) &&
+  Array.isArray(value.about.highlights) &&
+  value.about.highlights.every(isAboutHighlight) &&
+  isObject(value.services) &&
+  isString(value.services.title) &&
+  isString(value.services.subtitle) &&
+  isString(value.services.formatTitle) &&
+  Array.isArray(value.services.formats) &&
+  value.services.formats.every(isWorkFormat) &&
+  isString(value.services.noteTitle) &&
+  isStringArray(value.services.noteItems) &&
+  isObject(value.contact) &&
+  isString(value.contact.title) &&
+  isString(value.contact.subtitle) &&
+  isString(value.contact.infoTitle) &&
+  isObject(value.contact.contactInfoTitles) &&
+  isString(value.contact.contactInfoTitles.phone) &&
+  isString(value.contact.contactInfoTitles.email) &&
+  isString(value.contact.contactInfoTitles.address) &&
+  isString(value.contact.contactInfoTitles.workHours) &&
+  isString(value.contact.firstSessionTitle) &&
+  isString(value.contact.firstSessionDescription) &&
+  isStringArray(value.contact.firstSessionDetails) &&
+  isString(value.contact.privacyTitle) &&
+  isString(value.contact.privacyDescription) &&
+  isString(value.contact.formTitle) &&
+  isObject(value.contact.formLabels) &&
+  isString(value.contact.formLabels.name) &&
+  isString(value.contact.formLabels.email) &&
+  isString(value.contact.formLabels.phone) &&
+  isString(value.contact.formLabels.message) &&
+  isObject(value.contact.formPlaceholders) &&
+  isString(value.contact.formPlaceholders.name) &&
+  isString(value.contact.formPlaceholders.email) &&
+  isString(value.contact.formPlaceholders.phone) &&
+  isString(value.contact.formPlaceholders.message) &&
+  isString(value.contact.submitIdle) &&
+  isString(value.contact.submitLoading) &&
+  isString(value.contact.consentText) &&
+  isString(value.contact.toastSuccess) &&
+  isString(value.contact.toastError) &&
+  isObject(value.footer) &&
+  isString(value.footer.descriptionPrefix) &&
+  isString(value.footer.descriptionSuffix) &&
+  isString(value.footer.quickLinksTitle) &&
+  isString(value.footer.contactsTitle) &&
+  isString(value.footer.rightsSuffix) &&
+  isString(value.footer.roleLabel) &&
+  isString(value.footer.adminLabel);
+
+const validateUiTextUpdate = (value) => {
+  if (!isObject(value)) {
+    return { ok: false, error: 'Invalid uiText' };
   }
+  if (value.navigation !== undefined) {
+    if (
+      !isObject(value.navigation) ||
+      (value.navigation.home !== undefined && !isString(value.navigation.home)) ||
+      (value.navigation.about !== undefined && !isString(value.navigation.about)) ||
+      (value.navigation.services !== undefined && !isString(value.navigation.services)) ||
+      (value.navigation.contact !== undefined && !isString(value.navigation.contact))
+    ) {
+      return { ok: false, error: 'Invalid uiText.navigation' };
+    }
+  }
+  if (value.hero !== undefined) {
+    if (
+      !isObject(value.hero) ||
+      (value.hero.primaryCta !== undefined && !isString(value.hero.primaryCta)) ||
+      (value.hero.secondaryCta !== undefined && !isString(value.hero.secondaryCta)) ||
+      (value.hero.experienceLabel !== undefined && !isString(value.hero.experienceLabel))
+    ) {
+      return { ok: false, error: 'Invalid uiText.hero' };
+    }
+  }
+  if (value.about !== undefined) {
+    if (
+      !isObject(value.about) ||
+      (value.about.intro !== undefined && !isString(value.about.intro)) ||
+      (value.about.educationTitle !== undefined && !isString(value.about.educationTitle)) ||
+      (value.about.membershipTitle !== undefined && !isString(value.about.membershipTitle)) ||
+      (value.about.highlights !== undefined &&
+        (!Array.isArray(value.about.highlights) || !value.about.highlights.every(isAboutHighlight)))
+    ) {
+      return { ok: false, error: 'Invalid uiText.about' };
+    }
+  }
+  if (value.services !== undefined) {
+    if (
+      !isObject(value.services) ||
+      (value.services.title !== undefined && !isString(value.services.title)) ||
+      (value.services.subtitle !== undefined && !isString(value.services.subtitle)) ||
+      (value.services.formatTitle !== undefined && !isString(value.services.formatTitle)) ||
+      (value.services.formats !== undefined &&
+        (!Array.isArray(value.services.formats) || !value.services.formats.every(isWorkFormat))) ||
+      (value.services.noteTitle !== undefined && !isString(value.services.noteTitle)) ||
+      (value.services.noteItems !== undefined && !isStringArray(value.services.noteItems))
+    ) {
+      return { ok: false, error: 'Invalid uiText.services' };
+    }
+  }
+  if (value.contact !== undefined) {
+    if (!isObject(value.contact)) {
+      return { ok: false, error: 'Invalid uiText.contact' };
+    }
+    if (value.contact.contactInfoTitles !== undefined) {
+      if (
+        !isObject(value.contact.contactInfoTitles) ||
+        (value.contact.contactInfoTitles.phone !== undefined && !isString(value.contact.contactInfoTitles.phone)) ||
+        (value.contact.contactInfoTitles.email !== undefined && !isString(value.contact.contactInfoTitles.email)) ||
+        (value.contact.contactInfoTitles.address !== undefined && !isString(value.contact.contactInfoTitles.address)) ||
+        (value.contact.contactInfoTitles.workHours !== undefined &&
+          !isString(value.contact.contactInfoTitles.workHours))
+      ) {
+        return { ok: false, error: 'Invalid uiText.contact.contactInfoTitles' };
+      }
+    }
+    if (
+      (value.contact.title !== undefined && !isString(value.contact.title)) ||
+      (value.contact.subtitle !== undefined && !isString(value.contact.subtitle)) ||
+      (value.contact.infoTitle !== undefined && !isString(value.contact.infoTitle)) ||
+      (value.contact.firstSessionTitle !== undefined && !isString(value.contact.firstSessionTitle)) ||
+      (value.contact.firstSessionDescription !== undefined &&
+        !isString(value.contact.firstSessionDescription)) ||
+      (value.contact.firstSessionDetails !== undefined && !isStringArray(value.contact.firstSessionDetails)) ||
+      (value.contact.privacyTitle !== undefined && !isString(value.contact.privacyTitle)) ||
+      (value.contact.privacyDescription !== undefined && !isString(value.contact.privacyDescription)) ||
+      (value.contact.formTitle !== undefined && !isString(value.contact.formTitle)) ||
+      (value.contact.formLabels !== undefined &&
+        (!isObject(value.contact.formLabels) ||
+          (value.contact.formLabels.name !== undefined && !isString(value.contact.formLabels.name)) ||
+          (value.contact.formLabels.email !== undefined && !isString(value.contact.formLabels.email)) ||
+          (value.contact.formLabels.phone !== undefined && !isString(value.contact.formLabels.phone)) ||
+          (value.contact.formLabels.message !== undefined && !isString(value.contact.formLabels.message)))) ||
+      (value.contact.formPlaceholders !== undefined &&
+        (!isObject(value.contact.formPlaceholders) ||
+          (value.contact.formPlaceholders.name !== undefined && !isString(value.contact.formPlaceholders.name)) ||
+          (value.contact.formPlaceholders.email !== undefined && !isString(value.contact.formPlaceholders.email)) ||
+          (value.contact.formPlaceholders.phone !== undefined && !isString(value.contact.formPlaceholders.phone)) ||
+          (value.contact.formPlaceholders.message !== undefined &&
+            !isString(value.contact.formPlaceholders.message)))) ||
+      (value.contact.submitIdle !== undefined && !isString(value.contact.submitIdle)) ||
+      (value.contact.submitLoading !== undefined && !isString(value.contact.submitLoading)) ||
+      (value.contact.consentText !== undefined && !isString(value.contact.consentText)) ||
+      (value.contact.toastSuccess !== undefined && !isString(value.contact.toastSuccess)) ||
+      (value.contact.toastError !== undefined && !isString(value.contact.toastError))
+    ) {
+      return { ok: false, error: 'Invalid uiText.contact' };
+    }
+  }
+  if (value.footer !== undefined) {
+    if (
+      !isObject(value.footer) ||
+      (value.footer.descriptionPrefix !== undefined && !isString(value.footer.descriptionPrefix)) ||
+      (value.footer.descriptionSuffix !== undefined && !isString(value.footer.descriptionSuffix)) ||
+      (value.footer.quickLinksTitle !== undefined && !isString(value.footer.quickLinksTitle)) ||
+      (value.footer.contactsTitle !== undefined && !isString(value.footer.contactsTitle)) ||
+      (value.footer.rightsSuffix !== undefined && !isString(value.footer.rightsSuffix)) ||
+      (value.footer.roleLabel !== undefined && !isString(value.footer.roleLabel)) ||
+      (value.footer.adminLabel !== undefined && !isString(value.footer.adminLabel))
+    ) {
+      return { ok: false, error: 'Invalid uiText.footer' };
+    }
+  }
+  return { ok: true };
+};
+
+const isSiteData = (value) =>
+  isObject(value) &&
+  isString(value.psychologistName) &&
+  isString(value.profileImageUrl) &&
+  isString(value.heroTitle) &&
+  isString(value.heroDescription) &&
+  isString(value.yearsOfExperience) &&
+  isString(value.aboutTitle) &&
+  isString(value.aboutDescription1) &&
+  isString(value.aboutDescription2) &&
+  isString(value.aboutDescription3) &&
+  isStringArray(value.education) &&
+  isStringArray(value.membership) &&
+  isServiceArray(value.services) &&
+  isContactInfo(value.contactInfo) &&
+  isUiText(value.uiText);
+
+const mergeSiteData = (current, updates) => ({
+  ...current,
+  ...updates,
+  contactInfo: updates.contactInfo ? { ...current.contactInfo, ...updates.contactInfo } : current.contactInfo,
+  uiText: updates.uiText ? { ...current.uiText, ...updates.uiText } : current.uiText,
+});
+
+const validateSiteDataUpdate = (updates) => {
+  if (!updates || typeof updates !== 'object') {
+    return { ok: false, error: 'Invalid payload' };
+  }
+  const allowedKeys = new Set([
+    'psychologistName',
+    'profileImageUrl',
+    'heroTitle',
+    'heroDescription',
+    'yearsOfExperience',
+    'aboutTitle',
+    'aboutDescription1',
+    'aboutDescription2',
+    'aboutDescription3',
+    'education',
+    'membership',
+    'services',
+    'contactInfo',
+    'uiText'
+  ]);
+
+  for (const key of Object.keys(updates)) {
+    if (!allowedKeys.has(key)) {
+      return { ok: false, error: `Unknown field: ${key}` };
+    }
+  }
+
+  if (updates.psychologistName !== undefined && !isString(updates.psychologistName)) {
+    return { ok: false, error: 'Invalid psychologistName' };
+  }
+  if (updates.profileImageUrl !== undefined && !isString(updates.profileImageUrl)) {
+    return { ok: false, error: 'Invalid profileImageUrl' };
+  }
+  if (updates.heroTitle !== undefined && !isString(updates.heroTitle)) {
+    return { ok: false, error: 'Invalid heroTitle' };
+  }
+  if (updates.heroDescription !== undefined && !isString(updates.heroDescription)) {
+    return { ok: false, error: 'Invalid heroDescription' };
+  }
+  if (updates.yearsOfExperience !== undefined && !isString(updates.yearsOfExperience)) {
+    return { ok: false, error: 'Invalid yearsOfExperience' };
+  }
+  if (updates.aboutTitle !== undefined && !isString(updates.aboutTitle)) {
+    return { ok: false, error: 'Invalid aboutTitle' };
+  }
+  if (updates.aboutDescription1 !== undefined && !isString(updates.aboutDescription1)) {
+    return { ok: false, error: 'Invalid aboutDescription1' };
+  }
+  if (updates.aboutDescription2 !== undefined && !isString(updates.aboutDescription2)) {
+    return { ok: false, error: 'Invalid aboutDescription2' };
+  }
+  if (updates.aboutDescription3 !== undefined && !isString(updates.aboutDescription3)) {
+    return { ok: false, error: 'Invalid aboutDescription3' };
+  }
+  if (updates.education !== undefined && !isStringArray(updates.education)) {
+    return { ok: false, error: 'Invalid education' };
+  }
+  if (updates.membership !== undefined && !isStringArray(updates.membership)) {
+    return { ok: false, error: 'Invalid membership' };
+  }
+  if (updates.services !== undefined && !isServiceArray(updates.services)) {
+    return { ok: false, error: 'Invalid services' };
+  }
+  if (updates.contactInfo !== undefined) {
+    if (
+      !isObject(updates.contactInfo) ||
+      (updates.contactInfo.phone !== undefined && !isString(updates.contactInfo.phone)) ||
+      (updates.contactInfo.email !== undefined && !isString(updates.contactInfo.email)) ||
+      (updates.contactInfo.address !== undefined && !isString(updates.contactInfo.address)) ||
+      (updates.contactInfo.workHours !== undefined && !isString(updates.contactInfo.workHours))
+    ) {
+      return { ok: false, error: 'Invalid contactInfo' };
+    }
+  }
+  if (updates.uiText !== undefined) {
+    const uiTextValidation = validateUiTextUpdate(updates.uiText);
+    if (!uiTextValidation.ok) {
+      return uiTextValidation;
+    }
+  }
+
+  return { ok: true };
+};
+
+const loadTemplateData = () => {
+  if (!fs.existsSync(siteDataTemplatePath)) {
+    throw new Error(`Missing template file at ${siteDataTemplatePath}`);
+  }
+  return loadJsonFile(siteDataTemplatePath);
 };
 
 const saveSiteData = (data) => {
@@ -315,9 +555,49 @@ const saveSiteData = (data) => {
   fs.writeFileSync(siteDataPath, JSON.stringify(data, null, 2), 'utf8');
 };
 
+const restoreFromTemplate = (reason) => {
+  try {
+    const template = loadTemplateData();
+    if (!isSiteData(template)) {
+      throw new Error('Template site data has invalid shape');
+    }
+    saveSiteData(template);
+    if (reason) {
+      console.warn(`Site data restored from template (${reason}).`);
+    }
+    return template;
+  } catch (error) {
+    console.error('Failed to restore site data from template:', error);
+    return null;
+  }
+};
+
+const loadSiteData = () => {
+  try {
+    if (!fs.existsSync(siteDataPath)) {
+      return restoreFromTemplate('missing');
+    }
+    const raw = fs.readFileSync(siteDataPath, 'utf8');
+    try {
+      const parsed = JSON.parse(raw);
+      if (!isSiteData(parsed)) {
+        console.error('Site data has invalid shape, restoring from template.');
+        return restoreFromTemplate('invalid-shape');
+      }
+      return parsed;
+    } catch (error) {
+      console.error('Site data JSON is invalid, restoring from template:', error);
+      return restoreFromTemplate('invalid-json');
+    }
+  } catch (error) {
+    console.error('Failed to read site data:', error);
+    return null;
+  }
+};
+
 ensureDataDir();
 if (!fs.existsSync(siteDataPath)) {
-  saveSiteData(defaultSiteData);
+  restoreFromTemplate('missing');
 }
 
 const server = http.createServer(async (req, res) => {
@@ -378,6 +658,9 @@ const server = http.createServer(async (req, res) => {
   if (req.url === '/api/site-data') {
     if (req.method === 'GET') {
       const data = loadSiteData();
+      if (!data) {
+        return json(res, 500, { error: 'Failed to load site data' });
+      }
       return json(res, 200, data);
     }
 
@@ -389,8 +672,18 @@ const server = http.createServer(async (req, res) => {
       try {
         const body = await readRequestBody(req);
         const updates = JSON.parse(body || '{}');
+        const validation = validateSiteDataUpdate(updates);
+        if (!validation.ok) {
+          return json(res, 400, { error: validation.error });
+        }
         const current = loadSiteData();
-        const next = { ...current, ...updates };
+        if (!current) {
+          return json(res, 500, { error: 'Failed to load site data' });
+        }
+        const next = mergeSiteData(current, updates);
+        if (!isSiteData(next)) {
+          return json(res, 400, { error: 'Invalid site data payload' });
+        }
         saveSiteData(next);
         return json(res, 200, next);
       } catch (error) {

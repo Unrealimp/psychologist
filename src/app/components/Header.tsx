@@ -6,6 +6,10 @@ export function Header() {
   const { siteData } = useSiteData();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  if (!siteData) {
+    return null;
+  }
+
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -28,25 +32,25 @@ export function Header() {
               onClick={() => scrollToSection('home')}
               className="text-gray-700 hover:text-teal-600 transition-colors"
             >
-              Главная
+              {siteData.uiText.navigation.home}
             </button>
             <button
               onClick={() => scrollToSection('about')}
               className="text-gray-700 hover:text-teal-600 transition-colors"
             >
-              О себе
+              {siteData.uiText.navigation.about}
             </button>
             <button
               onClick={() => scrollToSection('services')}
               className="text-gray-700 hover:text-teal-600 transition-colors"
             >
-              Услуги
+              {siteData.uiText.navigation.services}
             </button>
             <button
               onClick={() => scrollToSection('contact')}
               className="text-gray-700 hover:text-teal-600 transition-colors"
             >
-              Контакты
+              {siteData.uiText.navigation.contact}
             </button>
           </nav>
 
@@ -66,25 +70,25 @@ export function Header() {
               onClick={() => scrollToSection('home')}
               className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              Главная
+              {siteData.uiText.navigation.home}
             </button>
             <button
               onClick={() => scrollToSection('about')}
               className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              О себе
+              {siteData.uiText.navigation.about}
             </button>
             <button
               onClick={() => scrollToSection('services')}
               className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              Услуги
+              {siteData.uiText.navigation.services}
             </button>
             <button
               onClick={() => scrollToSection('contact')}
               className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              Контакты
+              {siteData.uiText.navigation.contact}
             </button>
           </nav>
         )}

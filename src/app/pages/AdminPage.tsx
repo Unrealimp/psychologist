@@ -6,7 +6,7 @@ import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
 
 export function AdminPage() {
   const navigate = useNavigate();
-  const { siteData, updateSiteData } = useSiteData();
+  const { siteData, isLoading, updateSiteData } = useSiteData();
   const [formData, setFormData] = useState(siteData);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -33,6 +33,9 @@ export function AdminPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData) {
+      return;
+    }
     setIsSaving(true);
     const ok = await updateSiteData(formData);
     setIsSaving(false);
@@ -47,11 +50,12 @@ export function AdminPage() {
     const newService = {
       id: Date.now().toString(),
       icon: 'Brain',
-      title: 'Новая услуга',
-      description: 'Описание услуги',
-      duration: '50 минут',
-      price: '5000 ₽'
+      title: '',
+      description: '',
+      duration: '',
+      price: ''
     };
+    if (!formData) return;
     setFormData({
       ...formData,
       services: [...formData.services, newService]
@@ -59,6 +63,7 @@ export function AdminPage() {
   };
 
   const handleRemoveService = (id: string) => {
+    if (!formData) return;
     setFormData({
       ...formData,
       services: formData.services.filter(s => s.id !== id)
@@ -66,6 +71,7 @@ export function AdminPage() {
   };
 
   const handleServiceChange = (id: string, field: string, value: string) => {
+    if (!formData) return;
     setFormData({
       ...formData,
       services: formData.services.map(s =>
@@ -75,24 +81,35 @@ export function AdminPage() {
   };
 
   const handleEducationChange = (index: number, value: string) => {
+    if (!formData) return;
     const newEducation = [...formData.education];
     newEducation[index] = value;
     setFormData({ ...formData, education: newEducation });
   };
 
   const handleAddEducation = () => {
+    if (!formData) return;
     setFormData({
       ...formData,
-      education: [...formData.education, 'Новое образование']
+      education: [...formData.education, '']
     });
   };
 
   const handleRemoveEducation = (index: number) => {
+    if (!formData) return;
     setFormData({
       ...formData,
       education: formData.education.filter((_, i) => i !== index)
     });
   };
+
+  if (isLoading || !formData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-500">
+        Загрузка...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
