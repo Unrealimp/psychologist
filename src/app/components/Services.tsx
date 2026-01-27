@@ -60,30 +60,32 @@ export function Services() {
 
         <div className="bg-white rounded-2xl p-8 shadow-xl">
           <h3 className="text-2xl text-gray-900 mb-8 text-center">{siteData.uiText.services.formatTitle}</h3>
-          <div className="grid md:grid-cols-2 gap-8">
-            {siteData.uiText.services.formats.map((format) => (
-              <div key={format.title} className="border-2 border-teal-100 rounded-xl p-6">
-                <h4 className="text-xl text-gray-900 mb-2">{format.title}</h4>
-                <p className="text-gray-600 mb-4">{format.description}</p>
-                <ul className="space-y-2">
-                  {format.bullets.map((bullet) => (
-                    <li key={bullet} className="flex items-center text-gray-700">
-                      <span className="text-teal-600 mr-2">✓</span>
-                      {bullet}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 p-6 bg-teal-50 rounded-xl">
-            <h4 className="text-lg text-gray-900 mb-2">{siteData.uiText.services.noteTitle}</h4>
-            <ul className="space-y-2 text-gray-700">
-              {siteData.uiText.services.noteItems.map((item) => (
-                <li key={item}>• {item}</li>
+          <div className="grid gap-8 md:grid-cols-2">
+            <div className="space-y-6">
+              {siteData.uiText.services.formats.map((format) => (
+                <div key={format.title} className="border-2 border-teal-100 rounded-xl p-6">
+                  <h4 className="text-xl text-gray-900 mb-2">{format.title}</h4>
+                  <p className="text-gray-600 mb-4">{format.description}</p>
+                  <ul className="space-y-2">
+                    {format.bullets.map((bullet) => (
+                      <li key={bullet} className="flex items-center text-gray-700">
+                        <span className="text-teal-600 mr-2">✓</span>
+                        {bullet}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-            </ul>
+            </div>
+
+            <div className="p-6 bg-teal-50 rounded-xl">
+              <h4 className="text-lg text-gray-900 mb-2">{siteData.uiText.services.noteTitle}</h4>
+              <ul className="space-y-2 text-gray-700">
+                {siteData.uiText.services.noteItems.map((item) => (
+                  <li key={item}>• {item}</li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </div>
