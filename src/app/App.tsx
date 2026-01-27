@@ -6,7 +6,7 @@ import { LoginPage } from '@/app/pages/LoginPage';
 import { AdminPage } from '@/app/pages/AdminPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const isAuth = localStorage.getItem('adminAuth') === 'true';
+  const isAuth = Boolean(localStorage.getItem('adminToken'));
   return isAuth ? <>{children}</> : <Navigate to="/login" />;
 }
 

@@ -29,6 +29,7 @@ export function LoginPage() {
 
       // Сервер выдал токен — храним его
       localStorage.setItem('adminToken', data.token);
+      localStorage.setItem('adminAuth', 'true');
       navigate('/admin');
     } catch (err) {
       toast.error('Не удалось подключиться к серверу');

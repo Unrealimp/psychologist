@@ -13,6 +13,10 @@ export function Contact() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  if (!siteData) {
+    return null;
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -29,10 +33,10 @@ export function Contact() {
         throw new Error('Request failed');
       }
 
-      toast.success('Спасибо за обращение! Я свяжусь с вами в ближайшее время.');
+      toast.success(siteData.uiText.contact.toastSuccess);
       setFormData({ name: '', email: '', phone: '', message: '' });
     } catch (error) {
-      toast.error('Не удалось отправить сообщение. Попробуйте позже.');
+      toast.error(siteData.uiText.contact.toastError);
     } finally {
       setIsSubmitting(false);
     }
@@ -48,25 +52,25 @@ export function Contact() {
   const contactInfo = [
     {
       icon: Phone,
-      title: 'Телефон',
+      title: siteData.uiText.contact.contactInfoTitles.phone,
       content: siteData.contactInfo.phone,
       link: `tel:${siteData.contactInfo.phone.replace(/\s/g, '')}`
     },
     {
       icon: Mail,
-      title: 'Email',
+      title: siteData.uiText.contact.contactInfoTitles.email,
       content: siteData.contactInfo.email,
       link: `mailto:${siteData.contactInfo.email}`
     },
     {
       icon: MapPin,
-      title: 'Адрес',
+      title: siteData.uiText.contact.contactInfoTitles.address,
       content: siteData.contactInfo.address,
       link: null
     },
     {
       icon: Clock,
-      title: 'Часы работы',
+      title: siteData.uiText.contact.contactInfoTitles.workHours,
       content: siteData.contactInfo.workHours,
       link: null
     }
@@ -77,10 +81,10 @@ export function Contact() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl text-gray-900 mb-4">
-            Контакты и запись
+            {siteData.uiText.contact.title}
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Свяжитесь со мной удобным для вас способом, и мы обсудим возможность работы
+            {siteData.uiText.contact.subtitle}
           </p>
         </div>
 
@@ -88,7 +92,7 @@ export function Contact() {
           {/* Contact Information */}
           <div className="space-y-8">
             <div className="bg-gradient-to-br from-teal-50 to-blue-50 rounded-2xl p-8">
-              <h3 className="text-2xl text-gray-900 mb-6">Как со мной связаться</h3>
+              <h3 className="text-2xl text-gray-900 mb-6">{siteData.uiText.contact.infoTitle}</h3>
               <div className="space-y-6">
                 {contactInfo.map((item, index) => (
                   <div key={index} className="flex items-start">
@@ -111,23 +115,21 @@ export function Contact() {
             </div>
 
             <div className="bg-teal-600 text-white rounded-2xl p-8">
-              <h3 className="text-2xl mb-4">Первая консультация</h3>
+              <h3 className="text-2xl mb-4">{siteData.uiText.contact.firstSessionTitle}</h3>
               <p className="mb-4">
-                На первой встрече мы познакомимся, обсудим ваш запрос и определим, 
-                подходим ли мы друг другу для совместной работы.
+                {siteData.uiText.contact.firstSessionDescription}
               </p>
               <div className="space-y-2 text-teal-50">
-                <p>✓ Продолжительность: 50 минут</p>
-                <p>✓ Стоимость: 5000 ₽</p>
-                <p>✓ Онлайн</p>
+                {siteData.uiText.contact.firstSessionDetails.map((detail) => (
+                  <p key={detail}>✓ {detail}</p>
+                ))}
               </div>
             </div>
 
             <div className="bg-gray-50 rounded-2xl p-8">
-              <h3 className="text-xl text-gray-900 mb-4">Политика конфиденциальности</h3>
+              <h3 className="text-xl text-gray-900 mb-4">{siteData.uiText.contact.privacyTitle}</h3>
               <p className="text-gray-600 text-sm">
-                Вся информация, которую вы сообщаете на консультациях, является строго конфиденциальной 
-                и не разглашается третьим лицам. Я следую этическому кодексу психолога.
+                {siteData.uiText.contact.privacyDescription}
               </p>
             </div>
           </div>
@@ -135,11 +137,11 @@ export function Contact() {
           {/* Contact Form */}
           <div>
             <div className="bg-white border-2 border-gray-100 rounded-2xl p-8 shadow-lg">
-              <h3 className="text-2xl text-gray-900 mb-6">Записаться на консультацию</h3>
+              <h3 className="text-2xl text-gray-900 mb-6">{siteData.uiText.contact.formTitle}</h3>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="name" className="block text-sm text-gray-700 mb-2">
-                    Ваше имя *
+                    {siteData.uiText.contact.formLabels.name}
                   </label>
                   <input
                     type="text"
@@ -149,13 +151,13 @@ export function Contact() {
                     value={formData.name}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    placeholder="Иван Иванов"
+                    placeholder={siteData.uiText.contact.formPlaceholders.name}
                   />
                 </div>
 
                 <div>
                   <label htmlFor="email" className="block text-sm text-gray-700 mb-2">
-                    Email *
+                    {siteData.uiText.contact.formLabels.email}
                   </label>
                   <input
                     type="email"
@@ -165,13 +167,13 @@ export function Contact() {
                     value={formData.email}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    placeholder="ivan@example.com"
+                    placeholder={siteData.uiText.contact.formPlaceholders.email}
                   />
                 </div>
 
                 <div>
                   <label htmlFor="phone" className="block text-sm text-gray-700 mb-2">
-                    Телефон *
+                    {siteData.uiText.contact.formLabels.phone}
                   </label>
                   <input
                     type="tel"
@@ -181,13 +183,13 @@ export function Contact() {
                     value={formData.phone}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    placeholder="+7 (925) 123-45-67"
+                    placeholder={siteData.uiText.contact.formPlaceholders.phone}
                   />
                 </div>
 
                 <div>
                   <label htmlFor="message" className="block text-sm text-gray-700 mb-2">
-                    Сообщение
+                    {siteData.uiText.contact.formLabels.message}
                   </label>
                   <textarea
                     id="message"
@@ -196,7 +198,7 @@ export function Contact() {
                     value={formData.message}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
-                    placeholder="Кратко опишите ваш запрос или удобное время для звонка..."
+                    placeholder={siteData.uiText.contact.formPlaceholders.message}
                   />
                 </div>
 
@@ -206,11 +208,11 @@ export function Contact() {
                   disabled={isSubmitting}
                 >
                   <Send size={20} />
-                  {isSubmitting ? 'Отправка...' : 'Отправить заявку'}
+                  {isSubmitting ? siteData.uiText.contact.submitLoading : siteData.uiText.contact.submitIdle}
                 </button>
 
                 <p className="text-xs text-gray-500 text-center">
-                  Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности
+                  {siteData.uiText.contact.consentText}
                 </p>
               </form>
             </div>
