@@ -22,9 +22,6 @@ export function About() {
           <h2 className="text-3xl sm:text-4xl text-gray-900 mb-4">
             {siteData.aboutTitle}
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            {siteData.uiText.about.intro}
-          </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-12 mb-16">
@@ -48,18 +45,6 @@ export function About() {
                   <li key={index} className="flex items-start">
                     <span className="text-teal-600 mr-2">•</span>
                     <span>{edu}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="bg-blue-50 p-6 rounded-xl">
-              <h3 className="text-xl text-gray-900 mb-4">{siteData.uiText.about.membershipTitle}</h3>
-              <ul className="space-y-3 text-gray-700">
-                {siteData.membership.map((mem, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="text-blue-600 mr-2">•</span>
-                    <span>{mem}</span>
                   </li>
                 ))}
               </ul>

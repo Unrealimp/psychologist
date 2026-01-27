@@ -41,9 +41,7 @@ export interface UiText {
     experienceLabel: string;
   };
   about: {
-    intro: string;
     educationTitle: string;
-    membershipTitle: string;
     highlights: AboutHighlight[];
   };
   services: {
@@ -110,7 +108,6 @@ export interface SiteData {
   aboutDescription2: string;
   aboutDescription3: string;
   education: string[];
-  membership: string[];
   services: Service[];
   contactInfo: ContactInfo;
   uiText: UiText;

@@ -38,11 +38,21 @@ export function Services() {
                   <Icon size={24} />
                 </div>
                 <h3 className="text-xl text-gray-900 mb-2">{service.title}</h3>
-                <p className="text-gray-600 mb-4">{service.description}</p>
-                <div className="flex justify-between items-center pt-4 border-t border-gray-100">
-                  <span className="text-sm text-gray-500">{service.duration}</span>
-                  <span className="text-lg text-teal-600">{service.price}</span>
-                </div>
+                {service.description ? (
+                  <p className="text-gray-600 mb-4">{service.description}</p>
+                ) : null}
+                {service.duration || service.price ? (
+                  <div className="flex justify-between items-center pt-4 border-t border-gray-100">
+                    {service.duration ? (
+                      <span className="text-sm text-gray-500">{service.duration}</span>
+                    ) : (
+                      <span />
+                    )}
+                    {service.price ? (
+                      <span className="text-lg text-teal-600">{service.price}</span>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             );
           })}
