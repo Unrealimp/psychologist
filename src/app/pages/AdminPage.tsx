@@ -103,6 +103,142 @@ export function AdminPage() {
     });
   };
 
+  const updateServicesText = (
+    updater: (current: NonNullable<typeof formData>['uiText']['services']) => NonNullable<typeof formData>['uiText']['services']
+  ) => {
+    setFormData((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        uiText: {
+          ...prev.uiText,
+          services: updater(prev.uiText.services)
+        }
+      };
+    });
+  };
+
+  const handleFormatChange = (index: number, field: 'title' | 'description', value: string) => {
+    updateServicesText((servicesText) => ({
+      ...servicesText,
+      formats: servicesText.formats.map((format, i) =>
+        i === index ? { ...format, [field]: value } : format
+      )
+    }));
+  };
+
+  const handleFormatBulletChange = (formatIndex: number, bulletIndex: number, value: string) => {
+    updateServicesText((servicesText) => ({
+      ...servicesText,
+      formats: servicesText.formats.map((format, i) =>
+        i === formatIndex
+          ? {
+              ...format,
+              bullets: format.bullets.map((bullet, bIndex) => (bIndex === bulletIndex ? value : bullet))
+            }
+          : format
+      )
+    }));
+  };
+
+  const handleAddFormatBullet = (formatIndex: number) => {
+    updateServicesText((servicesText) => ({
+      ...servicesText,
+      formats: servicesText.formats.map((format, i) =>
+        i === formatIndex ? { ...format, bullets: [...format.bullets, ''] } : format
+      )
+    }));
+  };
+
+  const handleRemoveFormatBullet = (formatIndex: number, bulletIndex: number) => {
+    updateServicesText((servicesText) => ({
+      ...servicesText,
+      formats: servicesText.formats.map((format, i) =>
+        i === formatIndex
+          ? { ...format, bullets: format.bullets.filter((_, bIndex) => bIndex !== bulletIndex) }
+          : format
+      )
+    }));
+  };
+
+  const handleAddFormat = () => {
+    updateServicesText((servicesText) => ({
+      ...servicesText,
+      formats: [
+        ...servicesText.formats,
+        {
+          title: '',
+          description: '',
+          bullets: ['']
+        }
+      ]
+    }));
+  };
+
+  const handleRemoveFormat = (index: number) => {
+    updateServicesText((servicesText) => ({
+      ...servicesText,
+      formats: servicesText.formats.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleNoteItemChange = (index: number, value: string) => {
+    updateServicesText((servicesText) => ({
+      ...servicesText,
+      noteItems: servicesText.noteItems.map((item, i) => (i === index ? value : item))
+    }));
+  };
+
+  const handleAddNoteItem = () => {
+    updateServicesText((servicesText) => ({
+      ...servicesText,
+      noteItems: [...servicesText.noteItems, '']
+    }));
+  };
+
+  const handleRemoveNoteItem = (index: number) => {
+    updateServicesText((servicesText) => ({
+      ...servicesText,
+      noteItems: servicesText.noteItems.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateContactText = (
+    updater: (current: NonNullable<typeof formData>['uiText']['contact']) => NonNullable<typeof formData>['uiText']['contact']
+  ) => {
+    setFormData((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        uiText: {
+          ...prev.uiText,
+          contact: updater(prev.uiText.contact)
+        }
+      };
+    });
+  };
+
+  const handleFirstSessionDetailChange = (index: number, value: string) => {
+    updateContactText((contactText) => ({
+      ...contactText,
+      firstSessionDetails: contactText.firstSessionDetails.map((item, i) => (i === index ? value : item))
+    }));
+  };
+
+  const handleAddFirstSessionDetail = () => {
+    updateContactText((contactText) => ({
+      ...contactText,
+      firstSessionDetails: [...contactText.firstSessionDetails, '']
+    }));
+  };
+
+  const handleRemoveFirstSessionDetail = (index: number) => {
+    updateContactText((contactText) => ({
+      ...contactText,
+      firstSessionDetails: contactText.firstSessionDetails.filter((_, i) => i !== index)
+    }));
+  };
+
   if (isLoading || !formData) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-500">
@@ -344,6 +480,256 @@ export function AdminPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Формат работы */}
+          <div className="bg-white rounded-lg shadow p-6 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl">Формат работы</h2>
+              <button
+                type="button"
+                onClick={handleAddFormat}
+                className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+              >
+                <Plus size={16} />
+                Добавить блок
+              </button>
+            </div>
+
+            <div>
+              <label className="block text-sm mb-2">Заголовок секции</label>
+              <input
+                type="text"
+                value={formData.uiText.services.formatTitle}
+                onChange={(e) =>
+                  updateServicesText((servicesText) => ({
+                    ...servicesText,
+                    formatTitle: e.target.value
+                  }))
+                }
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
+
+            <div className="space-y-6">
+              {formData.uiText.services.formats.map((format, index) => (
+                <div key={`${format.title}-${index}`} className="border rounded-lg p-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm text-gray-500">Блок формата #{index + 1}</h3>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFormat(index)}
+                      className="text-red-600 hover:bg-red-50 p-2 rounded-lg"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm mb-1">Заголовок</label>
+                    <input
+                      type="text"
+                      value={format.title}
+                      onChange={(e) => handleFormatChange(index, 'title', e.target.value)}
+                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm mb-1">Описание</label>
+                    <textarea
+                      value={format.description}
+                      onChange={(e) => handleFormatChange(index, 'description', e.target.value)}
+                      rows={2}
+                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-sm">Пункты списка</label>
+                      <button
+                        type="button"
+                        onClick={() => handleAddFormatBullet(index)}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-teal-50 text-teal-700 rounded-lg hover:bg-teal-100"
+                      >
+                        <Plus size={14} />
+                        Добавить пункт
+                      </button>
+                    </div>
+                    {format.bullets.map((bullet, bulletIndex) => (
+                      <div key={`${bulletIndex}`} className="flex gap-2">
+                        <input
+                          type="text"
+                          value={bullet}
+                          onChange={(e) => handleFormatBulletChange(index, bulletIndex, e.target.value)}
+                          className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFormatBullet(index, bulletIndex)}
+                          className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="border-t pt-6 space-y-4">
+              <h3 className="text-lg">Важно знать</h3>
+              <div>
+                <label className="block text-sm mb-2">Заголовок блока</label>
+                <input
+                  type="text"
+                  value={formData.uiText.services.noteTitle}
+                  onChange={(e) =>
+                    updateServicesText((servicesText) => ({
+                      ...servicesText,
+                      noteTitle: e.target.value
+                    }))
+                  }
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="block text-sm">Пункты</label>
+                  <button
+                    type="button"
+                    onClick={handleAddNoteItem}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-teal-50 text-teal-700 rounded-lg hover:bg-teal-100"
+                  >
+                    <Plus size={14} />
+                    Добавить пункт
+                  </button>
+                </div>
+                {formData.uiText.services.noteItems.map((item, index) => (
+                  <div key={`${index}`} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={item}
+                      onChange={(e) => handleNoteItemChange(index, e.target.value)}
+                      className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveNoteItem(index)}
+                      className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Первая консультация и политика конфиденциальности */}
+          <div className="bg-white rounded-lg shadow p-6 space-y-6">
+            <div>
+              <h2 className="text-xl mb-4">Первая консультация</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm mb-2">Заголовок</label>
+                  <input
+                    type="text"
+                    value={formData.uiText.contact.firstSessionTitle}
+                    onChange={(e) =>
+                      updateContactText((contactText) => ({
+                        ...contactText,
+                        firstSessionTitle: e.target.value
+                      }))
+                    }
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm mb-2">Описание</label>
+                  <textarea
+                    value={formData.uiText.contact.firstSessionDescription}
+                    onChange={(e) =>
+                      updateContactText((contactText) => ({
+                        ...contactText,
+                        firstSessionDescription: e.target.value
+                      }))
+                    }
+                    rows={3}
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm">Детали</label>
+                    <button
+                      type="button"
+                      onClick={handleAddFirstSessionDetail}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-teal-50 text-teal-700 rounded-lg hover:bg-teal-100"
+                    >
+                      <Plus size={14} />
+                      Добавить пункт
+                    </button>
+                  </div>
+                  {formData.uiText.contact.firstSessionDetails.map((detail, index) => (
+                    <div key={`${index}`} className="flex gap-2">
+                      <input
+                        type="text"
+                        value={detail}
+                        onChange={(e) => handleFirstSessionDetailChange(index, e.target.value)}
+                        className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFirstSessionDetail(index)}
+                        className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t pt-6">
+              <h2 className="text-xl mb-4">Политика конфиденциальности</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm mb-2">Заголовок</label>
+                  <input
+                    type="text"
+                    value={formData.uiText.contact.privacyTitle}
+                    onChange={(e) =>
+                      updateContactText((contactText) => ({
+                        ...contactText,
+                        privacyTitle: e.target.value
+                      }))
+                    }
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm mb-2">Описание</label>
+                  <textarea
+                    value={formData.uiText.contact.privacyDescription}
+                    onChange={(e) =>
+                      updateContactText((contactText) => ({
+                        ...contactText,
+                        privacyDescription: e.target.value
+                      }))
+                    }
+                    rows={3}
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
