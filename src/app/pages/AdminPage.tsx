@@ -203,6 +203,42 @@ export function AdminPage() {
     }));
   };
 
+  const updateContactText = (
+    updater: (current: NonNullable<typeof formData>['uiText']['contact']) => NonNullable<typeof formData>['uiText']['contact']
+  ) => {
+    setFormData((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        uiText: {
+          ...prev.uiText,
+          contact: updater(prev.uiText.contact)
+        }
+      };
+    });
+  };
+
+  const handleFirstSessionDetailChange = (index: number, value: string) => {
+    updateContactText((contactText) => ({
+      ...contactText,
+      firstSessionDetails: contactText.firstSessionDetails.map((item, i) => (i === index ? value : item))
+    }));
+  };
+
+  const handleAddFirstSessionDetail = () => {
+    updateContactText((contactText) => ({
+      ...contactText,
+      firstSessionDetails: [...contactText.firstSessionDetails, '']
+    }));
+  };
+
+  const handleRemoveFirstSessionDetail = (index: number) => {
+    updateContactText((contactText) => ({
+      ...contactText,
+      firstSessionDetails: contactText.firstSessionDetails.filter((_, i) => i !== index)
+    }));
+  };
+
   if (isLoading || !formData) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-500">
@@ -590,6 +626,109 @@ export function AdminPage() {
                     </button>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Первая консультация и политика конфиденциальности */}
+          <div className="bg-white rounded-lg shadow p-6 space-y-6">
+            <div>
+              <h2 className="text-xl mb-4">Первая консультация</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm mb-2">Заголовок</label>
+                  <input
+                    type="text"
+                    value={formData.uiText.contact.firstSessionTitle}
+                    onChange={(e) =>
+                      updateContactText((contactText) => ({
+                        ...contactText,
+                        firstSessionTitle: e.target.value
+                      }))
+                    }
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm mb-2">Описание</label>
+                  <textarea
+                    value={formData.uiText.contact.firstSessionDescription}
+                    onChange={(e) =>
+                      updateContactText((contactText) => ({
+                        ...contactText,
+                        firstSessionDescription: e.target.value
+                      }))
+                    }
+                    rows={3}
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm">Детали</label>
+                    <button
+                      type="button"
+                      onClick={handleAddFirstSessionDetail}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-teal-50 text-teal-700 rounded-lg hover:bg-teal-100"
+                    >
+                      <Plus size={14} />
+                      Добавить пункт
+                    </button>
+                  </div>
+                  {formData.uiText.contact.firstSessionDetails.map((detail, index) => (
+                    <div key={`${index}`} className="flex gap-2">
+                      <input
+                        type="text"
+                        value={detail}
+                        onChange={(e) => handleFirstSessionDetailChange(index, e.target.value)}
+                        className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFirstSessionDetail(index)}
+                        className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t pt-6">
+              <h2 className="text-xl mb-4">Политика конфиденциальности</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm mb-2">Заголовок</label>
+                  <input
+                    type="text"
+                    value={formData.uiText.contact.privacyTitle}
+                    onChange={(e) =>
+                      updateContactText((contactText) => ({
+                        ...contactText,
+                        privacyTitle: e.target.value
+                      }))
+                    }
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm mb-2">Описание</label>
+                  <textarea
+                    value={formData.uiText.contact.privacyDescription}
+                    onChange={(e) =>
+                      updateContactText((contactText) => ({
+                        ...contactText,
+                        privacyDescription: e.target.value
+                      }))
+                    }
+                    rows={3}
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
               </div>
             </div>
           </div>
