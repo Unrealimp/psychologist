@@ -3,29 +3,17 @@ import { useSiteData } from '@/app/context/SiteDataContext';
 
 export function About() {
   const { siteData } = useSiteData();
-  
-  const highlights = [
-    {
-      icon: Award,
-      title: 'Квалификация',
-      description: 'Диплом МГУ, сертификация по КПТ и гештальт-терапии'
-    },
-    {
-      icon: Users,
-      title: '500+ клиентов',
-      description: 'Успешно завершенных терапий'
-    },
-    {
-      icon: BookOpen,
-      title: 'Постоянное развитие',
-      description: 'Регулярное повышение квалификации и супервизия'
-    },
-    {
-      icon: Heart,
-      title: 'Индивидуальный подход',
-      description: 'Работа с учетом вашей уникальной ситуации'
-    }
-  ];
+
+  if (!siteData) {
+    return null;
+  }
+
+  const highlightIcons: Record<string, typeof Award> = {
+    Award,
+    Users,
+    BookOpen,
+    Heart
+  };
 
   return (
     <section id="about" className="py-20 bg-white">
@@ -35,7 +23,7 @@ export function About() {
             {siteData.aboutTitle}
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Помогаю людям находить гармонию, преодолевать трудности и раскрывать свой потенциал
+            {siteData.uiText.about.intro}
           </p>
         </div>
 
@@ -54,7 +42,7 @@ export function About() {
 
           <div className="space-y-6">
             <div className="bg-teal-50 p-6 rounded-xl">
-              <h3 className="text-xl text-gray-900 mb-4">Образование</h3>
+              <h3 className="text-xl text-gray-900 mb-4">{siteData.uiText.about.educationTitle}</h3>
               <ul className="space-y-3 text-gray-700">
                 {siteData.education.map((edu, index) => (
                   <li key={index} className="flex items-start">
@@ -66,7 +54,7 @@ export function About() {
             </div>
 
             <div className="bg-blue-50 p-6 rounded-xl">
-              <h3 className="text-xl text-gray-900 mb-4">Членство</h3>
+              <h3 className="text-xl text-gray-900 mb-4">{siteData.uiText.about.membershipTitle}</h3>
               <ul className="space-y-3 text-gray-700">
                 {siteData.membership.map((mem, index) => (
                   <li key={index} className="flex items-start">
@@ -80,15 +68,18 @@ export function About() {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {highlights.map((item, index) => (
+          {siteData.uiText.about.highlights.map((item, index) => {
+            const Icon = highlightIcons[item.icon] ?? Award;
+            return (
             <div key={index} className="bg-gradient-to-br from-teal-50 to-blue-50 p-6 rounded-xl text-center">
               <div className="inline-flex items-center justify-center w-12 h-12 bg-teal-600 text-white rounded-lg mb-4">
-                <item.icon size={24} />
+                <Icon size={24} />
               </div>
               <h3 className="text-lg text-gray-900 mb-2">{item.title}</h3>
               <p className="text-sm text-gray-600">{item.description}</p>
             </div>
-          ))}
+          );
+          })}
         </div>
       </div>
     </section>
