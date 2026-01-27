@@ -77,7 +77,7 @@ const missingEnv = requiredEnv.filter((key) => !process.env[key]);
 
 const defaultSiteData = {
   psychologistName: 'Диана Попович',
-  profileImageUrl: '/images/profile.jpg',
+  profileImageUrl: '/images/profile.webp',
   heroTitle: 'Ваш путь к внутреннему равновесию',
   heroDescription:
     'Психолог Диана Попович. Индивидуальные консультации для взрослых и подростков: тревога, стресс, отношения, самооценка.',
