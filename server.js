@@ -144,7 +144,7 @@ const sendSmtpMail = async ({ name, email, phone, message }) => {
   const secureSocket = tls.connect(
     {
       socket,
-      servername: domain
+      servername: host,
     },
     () => null
   );
