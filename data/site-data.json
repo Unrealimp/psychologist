@@ -113,16 +113,31 @@
       "price": ""
     }
   ],
-  "contactInfo": {
-    "phone": "+79538233169",
-    "email": "dianapopovitch@yandex.ru",
-    "contact": "@my_telegram_name"
-  },
+  "contactInfo": [
+    {
+      "id": "contact-phone",
+      "label": "Телефон",
+      "value": "+79538233169",
+      "link": "tel:+79538233169"
+    },
+    {
+      "id": "contact-email",
+      "label": "Email",
+      "value": "dianapopovitch@yandex.ru",
+      "link": "mailto:dianapopovitch@yandex.ru"
+    },
+    {
+      "id": "contact-telegram",
+      "label": "Telegram",
+      "value": "@my_telegram_name",
+      "link": "https://t.me/my_telegram_name"
+    }
+  ],
   "uiText": {
     "navigation": {
       "home": "Главная",
       "about": "О себе",
-      "services": "Услуги",
+      "services": "Работаю с темами",
       "contact": "Контакты"
     },
     "hero": {
@@ -177,11 +192,6 @@
       "title": "Контакты и запись",
       "subtitle": "Свяжитесь со мной удобным для вас способом, и мы обсудим возможность работы",
       "infoTitle": "Как со мной связаться",
-      "contactInfoTitles": {
-        "phone": "Телефон",
-        "email": "Email",
-        "contact": "Контакт"
-      },
       "privacyTitle": "Политика конфиденциальности",
       "privacyDescription": "Вся информация, которую вы сообщаете на консультациях, является строго конфиденциальной и не разглашается третьим лицам. Я следую этическому кодексу психолога.",
       "formTitle": "Записаться на консультацию",
