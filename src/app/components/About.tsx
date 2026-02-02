@@ -85,13 +85,13 @@ export function About() {
             }
           }}
         >
-          <DialogContent className="max-w-3xl p-0">
+          <DialogContent className="w-[min(96vw,1100px)] max-w-none p-0">
             {selectedCertificate ? (
               <div className="grid gap-4 p-6">
                 <DialogHeader>
                   <DialogTitle>{selectedCertificate.title}</DialogTitle>
                 </DialogHeader>
-                <div className="overflow-hidden rounded-lg bg-gray-100">
+                <div className="max-h-[75vh] overflow-hidden rounded-lg bg-gray-100">
                   <img
                     src={selectedCertificate.imageUrl}
                     alt={selectedCertificate.title}
