@@ -1,4 +1,3 @@
-import { Award, BookOpen, Heart, Users } from 'lucide-react';
 import { useSiteData } from '@/app/context/SiteDataContext';
 
 export function About() {
@@ -7,13 +6,6 @@ export function About() {
   if (!siteData) {
     return null;
   }
-
-  const highlightIcons: Record<string, typeof Award> = {
-    Award,
-    Users,
-    BookOpen,
-    Heart
-  };
 
   return (
     <section id="about" className="py-20 bg-white">
@@ -49,47 +41,33 @@ export function About() {
                 ))}
               </ul>
             </div>
-            <div className="bg-gray-50 p-6 rounded-xl">
-              <h3 className="text-xl text-gray-900 mb-4">{siteData.uiText.about.certificatesTitle}</h3>
-              {siteData.certificates.length > 0 ? (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {siteData.certificates.map((certificate) => (
-                    <figure key={certificate.id} className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
-                      <div className="aspect-[4/3] overflow-hidden rounded-md bg-gray-100">
-                        <img
-                          src={certificate.imageUrl}
-                          alt={certificate.title}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                      <figcaption className="mt-2 text-sm text-gray-700">
-                        {certificate.title}
-                      </figcaption>
-                    </figure>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-gray-600">
-                  Здесь можно разместить сертификаты и дипломы для клиентов.
-                </p>
-              )}
-            </div>
           </div>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {siteData.uiText.about.highlights.map((item, index) => {
-            const Icon = highlightIcons[item.icon] ?? Award;
-            return (
-            <div key={index} className="bg-gradient-to-br from-teal-50 to-blue-50 p-6 rounded-xl text-center">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-teal-600 text-white rounded-lg mb-4">
-                <Icon size={24} />
-              </div>
-              <h3 className="text-lg text-gray-900 mb-2">{item.title}</h3>
-              <p className="text-sm text-gray-600">{item.description}</p>
+        <div className="bg-gray-50 p-8 rounded-2xl">
+          <h3 className="text-2xl text-gray-900 mb-6 text-center">{siteData.uiText.about.certificatesTitle}</h3>
+          {siteData.certificates.length > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {siteData.certificates.map((certificate) => (
+                <figure key={certificate.id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                  <div className="aspect-[4/3] overflow-hidden rounded-lg bg-gray-100">
+                    <img
+                      src={certificate.imageUrl}
+                      alt={certificate.title}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <figcaption className="mt-3 text-sm text-gray-700">
+                    {certificate.title}
+                  </figcaption>
+                </figure>
+              ))}
             </div>
-          );
-          })}
+          ) : (
+            <p className="text-sm text-gray-600 text-center">
+              Здесь можно разместить сертификаты и дипломы для клиентов.
+            </p>
+          )}
         </div>
       </div>
     </section>
