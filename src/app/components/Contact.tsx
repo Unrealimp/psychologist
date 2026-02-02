@@ -1,4 +1,4 @@
-import { Mail, MapPin, Phone, Clock, Send } from 'lucide-react';
+import { Mail, Phone, Send, MessageCircle } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useSiteData } from '@/app/context/SiteDataContext';
@@ -49,6 +49,18 @@ export function Contact() {
     });
   };
 
+  const contactLink = (() => {
+    const value = siteData.contactInfo.contact.trim();
+    if (!value) return null;
+    if (value.startsWith('@')) {
+      return `https://t.me/${value.slice(1)}`;
+    }
+    if (value.includes('t.me/')) {
+      return value.startsWith('http') ? value : `https://${value}`;
+    }
+    return null;
+  })();
+
   const contactInfo = [
     {
       icon: Phone,
@@ -63,16 +75,10 @@ export function Contact() {
       link: `mailto:${siteData.contactInfo.email}`
     },
     {
-      icon: MapPin,
-      title: siteData.uiText.contact.contactInfoTitles.address,
-      content: siteData.contactInfo.address,
-      link: null
-    },
-    {
-      icon: Clock,
-      title: siteData.uiText.contact.contactInfoTitles.workHours,
-      content: siteData.contactInfo.workHours,
-      link: null
+      icon: MessageCircle,
+      title: siteData.uiText.contact.contactInfoTitles.contact,
+      content: siteData.contactInfo.contact,
+      link: contactLink
     }
   ];
 
@@ -110,18 +116,6 @@ export function Contact() {
                       )}
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-teal-600 text-white rounded-2xl p-8">
-              <h3 className="text-2xl mb-4">{siteData.uiText.contact.firstSessionTitle}</h3>
-              <p className="mb-4">
-                {siteData.uiText.contact.firstSessionDescription}
-              </p>
-              <div className="space-y-2 text-teal-50">
-                {siteData.uiText.contact.firstSessionDetails.map((detail) => (
-                  <p key={detail}>✓ {detail}</p>
                 ))}
               </div>
             </div>

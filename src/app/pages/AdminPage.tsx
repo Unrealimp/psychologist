@@ -103,6 +103,48 @@ export function AdminPage() {
     });
   };
 
+  const handleCertificateChange = (id: string, field: 'title' | 'imageUrl', value: string) => {
+    if (!formData) return;
+    setFormData({
+      ...formData,
+      certificates: formData.certificates.map((certificate) =>
+        certificate.id === id ? { ...certificate, [field]: value } : certificate
+      )
+    });
+  };
+
+  const handleCertificateUpload = (id: string, file: File | null) => {
+    if (!formData || !file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        handleCertificateChange(id, 'imageUrl', reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAddCertificate = () => {
+    if (!formData) return;
+    const newCertificate = {
+      id: Date.now().toString(),
+      title: '',
+      imageUrl: ''
+    };
+    setFormData({
+      ...formData,
+      certificates: [...formData.certificates, newCertificate]
+    });
+  };
+
+  const handleRemoveCertificate = (id: string) => {
+    if (!formData) return;
+    setFormData({
+      ...formData,
+      certificates: formData.certificates.filter((certificate) => certificate.id !== id)
+    });
+  };
+
   const updateServicesText = (
     updater: (current: NonNullable<typeof formData>['uiText']['services']) => NonNullable<typeof formData>['uiText']['services']
   ) => {
@@ -216,27 +258,6 @@ export function AdminPage() {
         }
       };
     });
-  };
-
-  const handleFirstSessionDetailChange = (index: number, value: string) => {
-    updateContactText((contactText) => ({
-      ...contactText,
-      firstSessionDetails: contactText.firstSessionDetails.map((item, i) => (i === index ? value : item))
-    }));
-  };
-
-  const handleAddFirstSessionDetail = () => {
-    updateContactText((contactText) => ({
-      ...contactText,
-      firstSessionDetails: [...contactText.firstSessionDetails, '']
-    }));
-  };
-
-  const handleRemoveFirstSessionDetail = (index: number) => {
-    updateContactText((contactText) => ({
-      ...contactText,
-      firstSessionDetails: contactText.firstSessionDetails.filter((_, i) => i !== index)
-    }));
   };
 
   if (isLoading || !formData) {
@@ -408,6 +429,75 @@ export function AdminPage() {
                   </button>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Сертификаты и дипломы */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl">Сертификаты и дипломы</h2>
+              <button
+                type="button"
+                onClick={handleAddCertificate}
+                className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+              >
+                <Plus size={16} />
+                Добавить
+              </button>
+            </div>
+            <div className="space-y-4">
+              {formData.certificates.map((certificate) => (
+                <div key={certificate.id} className="border rounded-lg p-4 space-y-3">
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-sm text-gray-500">Сертификат #{certificate.id}</h3>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveCertificate(certificate.id)}
+                      className="text-red-600 hover:bg-red-50 p-2 rounded-lg"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                  <div>
+                    <label className="block text-sm mb-1">Название</label>
+                    <input
+                      type="text"
+                      value={certificate.title}
+                      onChange={(e) => handleCertificateChange(certificate.id, 'title', e.target.value)}
+                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm mb-1">Ссылка на изображение</label>
+                    <input
+                      type="url"
+                      value={certificate.imageUrl}
+                      onChange={(e) => handleCertificateChange(certificate.id, 'imageUrl', e.target.value)}
+                      placeholder="https://..."
+                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm mb-1">Загрузка изображения</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleCertificateUpload(certificate.id, e.target.files?.[0] ?? null)}
+                      className="w-full text-sm text-gray-600 file:mr-4 file:rounded-lg file:border-0 file:bg-teal-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-teal-700 hover:file:bg-teal-100"
+                    />
+                  </div>
+                  {certificate.imageUrl ? (
+                    <img
+                      src={certificate.imageUrl}
+                      alt={certificate.title || 'Сертификат'}
+                      className="h-32 w-full rounded-lg object-cover"
+                    />
+                  ) : null}
+                </div>
+              ))}
+              {formData.certificates.length === 0 ? (
+                <p className="text-sm text-gray-500">Добавьте изображения сертификатов или дипломов.</p>
+              ) : null}
             </div>
           </div>
 
@@ -630,75 +720,9 @@ export function AdminPage() {
             </div>
           </div>
 
-          {/* Первая консультация и политика конфиденциальности */}
+          {/* Политика конфиденциальности */}
           <div className="bg-white rounded-lg shadow p-6 space-y-6">
             <div>
-              <h2 className="text-xl mb-4">Первая консультация</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm mb-2">Заголовок</label>
-                  <input
-                    type="text"
-                    value={formData.uiText.contact.firstSessionTitle}
-                    onChange={(e) =>
-                      updateContactText((contactText) => ({
-                        ...contactText,
-                        firstSessionTitle: e.target.value
-                      }))
-                    }
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm mb-2">Описание</label>
-                  <textarea
-                    value={formData.uiText.contact.firstSessionDescription}
-                    onChange={(e) =>
-                      updateContactText((contactText) => ({
-                        ...contactText,
-                        firstSessionDescription: e.target.value
-                      }))
-                    }
-                    rows={3}
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  />
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-sm">Детали</label>
-                    <button
-                      type="button"
-                      onClick={handleAddFirstSessionDetail}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-teal-50 text-teal-700 rounded-lg hover:bg-teal-100"
-                    >
-                      <Plus size={14} />
-                      Добавить пункт
-                    </button>
-                  </div>
-                  {formData.uiText.contact.firstSessionDetails.map((detail, index) => (
-                    <div key={`${index}`} className="flex gap-2">
-                      <input
-                        type="text"
-                        value={detail}
-                        onChange={(e) => handleFirstSessionDetailChange(index, e.target.value)}
-                        className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveFirstSessionDetail(index)}
-                        className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t pt-6">
               <h2 className="text-xl mb-4">Политика конфиденциальности</h2>
               <div className="space-y-4">
                 <div>
@@ -764,26 +788,13 @@ export function AdminPage() {
               </div>
 
               <div>
-                <label className="block text-sm mb-2">Адрес</label>
+                <label className="block text-sm mb-2">Контакт</label>
                 <input
                   type="text"
-                  value={formData.contactInfo.address}
+                  value={formData.contactInfo.contact}
                   onChange={(e) => setFormData({
                     ...formData,
-                    contactInfo: { ...formData.contactInfo, address: e.target.value }
-                  })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm mb-2">Часы работы</label>
-                <input
-                  type="text"
-                  value={formData.contactInfo.workHours}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    contactInfo: { ...formData.contactInfo, workHours: e.target.value }
+                    contactInfo: { ...formData.contactInfo, contact: e.target.value }
                   })}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
