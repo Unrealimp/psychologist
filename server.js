@@ -227,6 +227,11 @@ const isObject = (value) => value && typeof value === 'object' && !Array.isArray
 const isStringArray = (value) =>
   Array.isArray(value) && value.every((item) => typeof item === 'string');
 
+const isCertificate = (value) =>
+  isObject(value) && isString(value.id) && isString(value.title) && isString(value.imageUrl);
+
+const isCertificateArray = (value) => Array.isArray(value) && value.every(isCertificate);
+
 const isService = (value) =>
   isObject(value) &&
   isString(value.id) &&
@@ -242,8 +247,7 @@ const isContactInfo = (value) =>
   isObject(value) &&
   isString(value.phone) &&
   isString(value.email) &&
-  isString(value.address) &&
-  isString(value.workHours);
+  isString(value.contact);
 
 const isAboutHighlight = (value) =>
   isObject(value) && isString(value.icon) && isString(value.title) && isString(value.description);
@@ -267,6 +271,7 @@ const isUiText = (value) =>
   isString(value.hero.experienceLabel) &&
   isObject(value.about) &&
   isString(value.about.educationTitle) &&
+  isString(value.about.certificatesTitle) &&
   Array.isArray(value.about.highlights) &&
   value.about.highlights.every(isAboutHighlight) &&
   isObject(value.services) &&
@@ -284,11 +289,7 @@ const isUiText = (value) =>
   isObject(value.contact.contactInfoTitles) &&
   isString(value.contact.contactInfoTitles.phone) &&
   isString(value.contact.contactInfoTitles.email) &&
-  isString(value.contact.contactInfoTitles.address) &&
-  isString(value.contact.contactInfoTitles.workHours) &&
-  isString(value.contact.firstSessionTitle) &&
-  isString(value.contact.firstSessionDescription) &&
-  isStringArray(value.contact.firstSessionDetails) &&
+  isString(value.contact.contactInfoTitles.contact) &&
   isString(value.contact.privacyTitle) &&
   isString(value.contact.privacyDescription) &&
   isString(value.contact.formTitle) &&
@@ -314,7 +315,10 @@ const isUiText = (value) =>
   isString(value.footer.contactsTitle) &&
   isString(value.footer.rightsSuffix) &&
   isString(value.footer.roleLabel) &&
-  isString(value.footer.adminLabel);
+  isString(value.footer.adminLabel) &&
+  isString(value.footer.consentLabel) &&
+  isString(value.footer.consentTitle) &&
+  isString(value.footer.consentText);
 
 const validateUiTextUpdate = (value) => {
   if (!isObject(value)) {
@@ -345,6 +349,7 @@ const validateUiTextUpdate = (value) => {
     if (
       !isObject(value.about) ||
       (value.about.educationTitle !== undefined && !isString(value.about.educationTitle)) ||
+      (value.about.certificatesTitle !== undefined && !isString(value.about.certificatesTitle)) ||
       (value.about.highlights !== undefined &&
         (!Array.isArray(value.about.highlights) || !value.about.highlights.every(isAboutHighlight)))
     ) {
@@ -374,9 +379,7 @@ const validateUiTextUpdate = (value) => {
         !isObject(value.contact.contactInfoTitles) ||
         (value.contact.contactInfoTitles.phone !== undefined && !isString(value.contact.contactInfoTitles.phone)) ||
         (value.contact.contactInfoTitles.email !== undefined && !isString(value.contact.contactInfoTitles.email)) ||
-        (value.contact.contactInfoTitles.address !== undefined && !isString(value.contact.contactInfoTitles.address)) ||
-        (value.contact.contactInfoTitles.workHours !== undefined &&
-          !isString(value.contact.contactInfoTitles.workHours))
+        (value.contact.contactInfoTitles.contact !== undefined && !isString(value.contact.contactInfoTitles.contact))
       ) {
         return { ok: false, error: 'Invalid uiText.contact.contactInfoTitles' };
       }
@@ -385,10 +388,6 @@ const validateUiTextUpdate = (value) => {
       (value.contact.title !== undefined && !isString(value.contact.title)) ||
       (value.contact.subtitle !== undefined && !isString(value.contact.subtitle)) ||
       (value.contact.infoTitle !== undefined && !isString(value.contact.infoTitle)) ||
-      (value.contact.firstSessionTitle !== undefined && !isString(value.contact.firstSessionTitle)) ||
-      (value.contact.firstSessionDescription !== undefined &&
-        !isString(value.contact.firstSessionDescription)) ||
-      (value.contact.firstSessionDetails !== undefined && !isStringArray(value.contact.firstSessionDetails)) ||
       (value.contact.privacyTitle !== undefined && !isString(value.contact.privacyTitle)) ||
       (value.contact.privacyDescription !== undefined && !isString(value.contact.privacyDescription)) ||
       (value.contact.formTitle !== undefined && !isString(value.contact.formTitle)) ||
@@ -423,7 +422,10 @@ const validateUiTextUpdate = (value) => {
       (value.footer.contactsTitle !== undefined && !isString(value.footer.contactsTitle)) ||
       (value.footer.rightsSuffix !== undefined && !isString(value.footer.rightsSuffix)) ||
       (value.footer.roleLabel !== undefined && !isString(value.footer.roleLabel)) ||
-      (value.footer.adminLabel !== undefined && !isString(value.footer.adminLabel))
+      (value.footer.adminLabel !== undefined && !isString(value.footer.adminLabel)) ||
+      (value.footer.consentLabel !== undefined && !isString(value.footer.consentLabel)) ||
+      (value.footer.consentTitle !== undefined && !isString(value.footer.consentTitle)) ||
+      (value.footer.consentText !== undefined && !isString(value.footer.consentText))
     ) {
       return { ok: false, error: 'Invalid uiText.footer' };
     }
@@ -443,6 +445,7 @@ const isSiteData = (value) =>
   isString(value.aboutDescription2) &&
   isString(value.aboutDescription3) &&
   isStringArray(value.education) &&
+  isCertificateArray(value.certificates) &&
   isServiceArray(value.services) &&
   isContactInfo(value.contactInfo) &&
   isUiText(value.uiText);
@@ -469,6 +472,7 @@ const validateSiteDataUpdate = (updates) => {
     'aboutDescription2',
     'aboutDescription3',
     'education',
+    'certificates',
     'services',
     'contactInfo',
     'uiText'
@@ -510,6 +514,9 @@ const validateSiteDataUpdate = (updates) => {
   if (updates.education !== undefined && !isStringArray(updates.education)) {
     return { ok: false, error: 'Invalid education' };
   }
+  if (updates.certificates !== undefined && !isCertificateArray(updates.certificates)) {
+    return { ok: false, error: 'Invalid certificates' };
+  }
   if (updates.services !== undefined && !isServiceArray(updates.services)) {
     return { ok: false, error: 'Invalid services' };
   }
@@ -518,8 +525,7 @@ const validateSiteDataUpdate = (updates) => {
       !isObject(updates.contactInfo) ||
       (updates.contactInfo.phone !== undefined && !isString(updates.contactInfo.phone)) ||
       (updates.contactInfo.email !== undefined && !isString(updates.contactInfo.email)) ||
-      (updates.contactInfo.address !== undefined && !isString(updates.contactInfo.address)) ||
-      (updates.contactInfo.workHours !== undefined && !isString(updates.contactInfo.workHours))
+      (updates.contactInfo.contact !== undefined && !isString(updates.contactInfo.contact))
     ) {
       return { ok: false, error: 'Invalid contactInfo' };
     }
