@@ -243,11 +243,14 @@ const isService = (value) =>
 
 const isServiceArray = (value) => Array.isArray(value) && value.every(isService);
 
-const isContactInfo = (value) =>
+const isContactInfoItem = (value) =>
   isObject(value) &&
-  isString(value.phone) &&
-  isString(value.email) &&
-  isString(value.contact);
+  isString(value.id) &&
+  isString(value.label) &&
+  isString(value.value) &&
+  (value.link === undefined || isString(value.link));
+
+const isContactInfo = (value) => Array.isArray(value) && value.every(isContactInfoItem);
 
 const isAboutHighlight = (value) =>
   isObject(value) && isString(value.icon) && isString(value.title) && isString(value.description);
@@ -286,10 +289,6 @@ const isUiText = (value) =>
   isString(value.contact.title) &&
   isString(value.contact.subtitle) &&
   isString(value.contact.infoTitle) &&
-  isObject(value.contact.contactInfoTitles) &&
-  isString(value.contact.contactInfoTitles.phone) &&
-  isString(value.contact.contactInfoTitles.email) &&
-  isString(value.contact.contactInfoTitles.contact) &&
   isString(value.contact.privacyTitle) &&
   isString(value.contact.privacyDescription) &&
   isString(value.contact.formTitle) &&
@@ -374,16 +373,6 @@ const validateUiTextUpdate = (value) => {
     if (!isObject(value.contact)) {
       return { ok: false, error: 'Invalid uiText.contact' };
     }
-    if (value.contact.contactInfoTitles !== undefined) {
-      if (
-        !isObject(value.contact.contactInfoTitles) ||
-        (value.contact.contactInfoTitles.phone !== undefined && !isString(value.contact.contactInfoTitles.phone)) ||
-        (value.contact.contactInfoTitles.email !== undefined && !isString(value.contact.contactInfoTitles.email)) ||
-        (value.contact.contactInfoTitles.contact !== undefined && !isString(value.contact.contactInfoTitles.contact))
-      ) {
-        return { ok: false, error: 'Invalid uiText.contact.contactInfoTitles' };
-      }
-    }
     if (
       (value.contact.title !== undefined && !isString(value.contact.title)) ||
       (value.contact.subtitle !== undefined && !isString(value.contact.subtitle)) ||
@@ -453,7 +442,7 @@ const isSiteData = (value) =>
 const mergeSiteData = (current, updates) => ({
   ...current,
   ...updates,
-  contactInfo: updates.contactInfo ? { ...current.contactInfo, ...updates.contactInfo } : current.contactInfo,
+  contactInfo: updates.contactInfo ? updates.contactInfo : current.contactInfo,
   uiText: updates.uiText ? { ...current.uiText, ...updates.uiText } : current.uiText,
 });
 
@@ -521,12 +510,7 @@ const validateSiteDataUpdate = (updates) => {
     return { ok: false, error: 'Invalid services' };
   }
   if (updates.contactInfo !== undefined) {
-    if (
-      !isObject(updates.contactInfo) ||
-      (updates.contactInfo.phone !== undefined && !isString(updates.contactInfo.phone)) ||
-      (updates.contactInfo.email !== undefined && !isString(updates.contactInfo.email)) ||
-      (updates.contactInfo.contact !== undefined && !isString(updates.contactInfo.contact))
-    ) {
+    if (!isContactInfo(updates.contactInfo)) {
       return { ok: false, error: 'Invalid contactInfo' };
     }
   }

@@ -15,10 +15,11 @@ export interface Certificate {
   imageUrl: string;
 }
 
-export interface ContactInfo {
-  phone: string;
-  email: string;
-  contact: string;
+export interface ContactInfoItem {
+  id: string;
+  label: string;
+  value: string;
+  link?: string;
 }
 
 export interface AboutHighlight {
@@ -62,11 +63,6 @@ export interface UiText {
     title: string;
     subtitle: string;
     infoTitle: string;
-    contactInfoTitles: {
-      phone: string;
-      email: string;
-      contact: string;
-    };
     privacyTitle: string;
     privacyDescription: string;
     formTitle: string;
@@ -115,7 +111,7 @@ export interface SiteData {
   education: string[];
   certificates: Certificate[];
   services: Service[];
-  contactInfo: ContactInfo;
+  contactInfo: ContactInfoItem[];
   uiText: UiText;
 }
 

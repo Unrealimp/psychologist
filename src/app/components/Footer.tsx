@@ -65,9 +65,18 @@ export function Footer() {
           <div>
             <h3 className="text-lg mb-4">{siteData.uiText.footer.contactsTitle}</h3>
             <ul className="space-y-2 text-gray-400 text-sm">
-              <li>{siteData.contactInfo.phone}</li>
-              <li>{siteData.contactInfo.email}</li>
-              <li>{siteData.contactInfo.contact}</li>
+              {siteData.contactInfo.map((item) => (
+                <li key={item.id}>
+                  <span className="font-medium text-gray-300">{item.label}:</span>{' '}
+                  {item.link ? (
+                    <a href={item.link} className="hover:text-teal-400 transition-colors">
+                      {item.value}
+                    </a>
+                  ) : (
+                    item.value
+                  )}
+                </li>
+              ))}
             </ul>
           </div>
         </div>

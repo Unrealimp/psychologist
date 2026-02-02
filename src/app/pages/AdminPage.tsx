@@ -145,6 +145,38 @@ export function AdminPage() {
     });
   };
 
+  const handleContactItemChange = (id: string, field: 'label' | 'value' | 'link', value: string) => {
+    if (!formData) return;
+    setFormData({
+      ...formData,
+      contactInfo: formData.contactInfo.map((item) =>
+        item.id === id ? { ...item, [field]: value } : item
+      )
+    });
+  };
+
+  const handleAddContactItem = () => {
+    if (!formData) return;
+    const newItem = {
+      id: Date.now().toString(),
+      label: '',
+      value: '',
+      link: ''
+    };
+    setFormData({
+      ...formData,
+      contactInfo: [...formData.contactInfo, newItem]
+    });
+  };
+
+  const handleRemoveContactItem = (id: string) => {
+    if (!formData) return;
+    setFormData({
+      ...formData,
+      contactInfo: formData.contactInfo.filter((item) => item.id !== id)
+    });
+  };
+
   const updateServicesText = (
     updater: (current: NonNullable<typeof formData>['uiText']['services']) => NonNullable<typeof formData>['uiText']['services']
   ) => {
@@ -750,46 +782,59 @@ export function AdminPage() {
 
           {/* Контакты */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl mb-4">Контактная информация</h2>
+            <h2 className="text-xl mb-4">Как связаться со мной</h2>
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm mb-2">Телефон</label>
-                <input
-                  type="text"
-                  value={formData.contactInfo.phone}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    contactInfo: { ...formData.contactInfo, phone: e.target.value }
-                  })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm mb-2">Email</label>
-                <input
-                  type="email"
-                  value={formData.contactInfo.email}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    contactInfo: { ...formData.contactInfo, email: e.target.value }
-                  })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm mb-2">Контакт</label>
-                <input
-                  type="text"
-                  value={formData.contactInfo.contact}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    contactInfo: { ...formData.contactInfo, contact: e.target.value }
-                  })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
+              {formData.contactInfo.map((item) => (
+                <div key={item.id} className="space-y-3 rounded-lg border border-gray-100 p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="grid flex-1 gap-3 md:grid-cols-3">
+                      <div>
+                        <label className="block text-sm mb-2">Название</label>
+                        <input
+                          type="text"
+                          value={item.label}
+                          onChange={(e) => handleContactItemChange(item.id, 'label', e.target.value)}
+                          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm mb-2">Значение</label>
+                        <input
+                          type="text"
+                          value={item.value}
+                          onChange={(e) => handleContactItemChange(item.id, 'value', e.target.value)}
+                          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm mb-2">Ссылка (необязательно)</label>
+                        <input
+                          type="text"
+                          value={item.link ?? ''}
+                          onChange={(e) => handleContactItemChange(item.id, 'link', e.target.value)}
+                          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveContactItem(item.id)}
+                      className="mt-6 text-red-500 hover:text-red-700"
+                      aria-label="Удалить контакт"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={handleAddContactItem}
+                className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+              >
+                <Plus size={16} />
+                Добавить контакт
+              </button>
             </div>
           </div>
 

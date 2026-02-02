@@ -49,38 +49,22 @@ export function Contact() {
     });
   };
 
-  const contactLink = (() => {
-    const value = siteData.contactInfo.contact.trim();
-    if (!value) return null;
-    if (value.startsWith('@')) {
-      return `https://t.me/${value.slice(1)}`;
+  const getContactIcon = (label: string) => {
+    const normalized = label.toLowerCase();
+    if (normalized.includes('телефон') || normalized.includes('phone')) {
+      return Phone;
     }
-    if (value.includes('t.me/')) {
-      return value.startsWith('http') ? value : `https://${value}`;
+    if (normalized.includes('email') || normalized.includes('почт')) {
+      return Mail;
     }
-    return null;
-  })();
+    return MessageCircle;
+  };
 
-  const contactInfo = [
-    {
-      icon: Phone,
-      title: siteData.uiText.contact.contactInfoTitles.phone,
-      content: siteData.contactInfo.phone,
-      link: `tel:${siteData.contactInfo.phone.replace(/\s/g, '')}`
-    },
-    {
-      icon: Mail,
-      title: siteData.uiText.contact.contactInfoTitles.email,
-      content: siteData.contactInfo.email,
-      link: `mailto:${siteData.contactInfo.email}`
-    },
-    {
-      icon: MessageCircle,
-      title: siteData.uiText.contact.contactInfoTitles.contact,
-      content: siteData.contactInfo.contact,
-      link: contactLink
-    }
-  ];
+  const contactInfo = siteData.contactInfo.map((item) => ({
+    ...item,
+    icon: getContactIcon(item.label),
+    link: item.link?.trim() || null
+  }));
 
   return (
     <section id="contact" className="py-20 bg-white">
@@ -106,13 +90,13 @@ export function Contact() {
                       <item.icon size={20} />
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm text-gray-500">{item.title}</div>
+                      <div className="text-sm text-gray-500">{item.label}</div>
                       {item.link ? (
                         <a href={item.link} className="text-gray-900 hover:text-teal-600 transition-colors">
-                          {item.content}
+                          {item.value}
                         </a>
                       ) : (
-                        <div className="text-gray-900">{item.content}</div>
+                        <div className="text-gray-900">{item.value}</div>
                       )}
                     </div>
                   </div>
