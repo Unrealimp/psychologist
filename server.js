@@ -76,7 +76,7 @@ const requireAdmin = (req) => {
 const requiredEnv = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASSWORD', 'CONTACT_TO'];
 const missingEnv = requiredEnv.filter((key) => !process.env[key]);
 
-const MAX_BODY_SIZE = 5_000_000;
+const MAX_BODY_SIZE = 15_000_000;
 
 const readRequestBody = (req) =>
   new Promise((resolve, reject) => {
