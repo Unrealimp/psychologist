@@ -21,15 +21,9 @@ export function About() {
 
         <div className="grid md:grid-cols-2 gap-12 mb-16">
           <div className="space-y-6">
-            <p className="text-gray-700">
-              {siteData.aboutDescription1}
-            </p>
-            <p className="text-gray-700">
-              {siteData.aboutDescription2}
-            </p>
-            <p className="text-gray-700">
-              {siteData.aboutDescription3}
-            </p>
+            <p className="text-gray-700">{siteData.aboutDescription1}</p>
+            <p className="text-gray-700">{siteData.aboutDescription2}</p>
+            <p className="text-gray-700">{siteData.aboutDescription3}</p>
           </div>
 
           <div className="space-y-6">
@@ -65,9 +59,7 @@ export function About() {
                       className="h-full w-full object-cover"
                     />
                   </div>
-                  <div className="mt-3 text-sm text-gray-700">
-                    {certificate.title}
-                  </div>
+                  <div className="mt-3 text-sm text-gray-700">{certificate.title}</div>
                 </button>
               ))}
             </div>
@@ -77,6 +69,7 @@ export function About() {
             </p>
           )}
         </div>
+
         <Dialog
           open={Boolean(selectedCertificate)}
           onOpenChange={(open) => {
@@ -85,17 +78,37 @@ export function About() {
             }
           }}
         >
-          <DialogContent className="w-[min(96vw,1100px)] max-w-none p-0">
+          {/* МОДАЛКА: ширина = ширина изображения, изображение видно полностью */}
+          <DialogContent
+            className="
+              !w-fit !max-w-none
+              !p-0
+              overflow-visible
+            "
+          >
             {selectedCertificate ? (
-              <div className="grid gap-4 p-6">
-                <DialogHeader>
-                  <DialogTitle>{selectedCertificate.title}</DialogTitle>
+              <div className="flex flex-col">
+                {/* Заголовок не должен раздувать ширину сильнее изображения */}
+                <DialogHeader className="p-4">
+                  <DialogTitle className="max-w-[95vw] break-words">
+                    {selectedCertificate.title}
+                  </DialogTitle>
                 </DialogHeader>
-                <div className="max-h-[75vh] overflow-hidden rounded-lg bg-gray-100">
+
+                {/* Важно: никаких w-full/h-full у картинки */}
+                <div className="px-4 pb-4">
                   <img
                     src={selectedCertificate.imageUrl}
                     alt={selectedCertificate.title}
-                    className="h-full w-full object-contain"
+                    className="
+                      block
+                      w-auto h-auto
+                      max-w-[95vw]
+                      max-h-[85vh]
+                      object-contain
+                      rounded-lg
+                      bg-gray-100
+                    "
                   />
                 </div>
               </div>
