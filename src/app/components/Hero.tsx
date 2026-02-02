@@ -48,10 +48,6 @@ export function Hero() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-xl shadow-lg">
-              <div className="text-3xl text-teal-600">{siteData.yearsOfExperience}</div>
-              <div className="text-sm text-gray-600">{siteData.uiText.hero.experienceLabel}</div>
-            </div>
           </div>
         </div>
       </div>
