@@ -49,6 +49,31 @@ export function About() {
                 ))}
               </ul>
             </div>
+            <div className="bg-gray-50 p-6 rounded-xl">
+              <h3 className="text-xl text-gray-900 mb-4">{siteData.uiText.about.certificatesTitle}</h3>
+              {siteData.certificates.length > 0 ? (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {siteData.certificates.map((certificate) => (
+                    <figure key={certificate.id} className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
+                      <div className="aspect-[4/3] overflow-hidden rounded-md bg-gray-100">
+                        <img
+                          src={certificate.imageUrl}
+                          alt={certificate.title}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <figcaption className="mt-2 text-sm text-gray-700">
+                        {certificate.title}
+                      </figcaption>
+                    </figure>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-600">
+                  Здесь можно разместить сертификаты и дипломы для клиентов.
+                </p>
+              )}
+            </div>
           </div>
         </div>
 

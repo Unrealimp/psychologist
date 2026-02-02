@@ -9,11 +9,16 @@ export interface Service {
   price: string;
 }
 
+export interface Certificate {
+  id: string;
+  title: string;
+  imageUrl: string;
+}
+
 export interface ContactInfo {
   phone: string;
   email: string;
-  address: string;
-  workHours: string;
+  contact: string;
 }
 
 export interface AboutHighlight {
@@ -42,6 +47,7 @@ export interface UiText {
   };
   about: {
     educationTitle: string;
+    certificatesTitle: string;
     highlights: AboutHighlight[];
   };
   services: {
@@ -59,12 +65,8 @@ export interface UiText {
     contactInfoTitles: {
       phone: string;
       email: string;
-      address: string;
-      workHours: string;
+      contact: string;
     };
-    firstSessionTitle: string;
-    firstSessionDescription: string;
-    firstSessionDetails: string[];
     privacyTitle: string;
     privacyDescription: string;
     formTitle: string;
@@ -94,6 +96,9 @@ export interface UiText {
     rightsSuffix: string;
     roleLabel: string;
     adminLabel: string;
+    consentLabel: string;
+    consentTitle: string;
+    consentText: string;
   };
 }
 
@@ -108,6 +113,7 @@ export interface SiteData {
   aboutDescription2: string;
   aboutDescription3: string;
   education: string[];
+  certificates: Certificate[];
   services: Service[];
   contactInfo: ContactInfo;
   uiText: UiText;

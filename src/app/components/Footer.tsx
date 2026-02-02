@@ -1,9 +1,11 @@
 import { useSiteData } from '@/app/context/SiteDataContext';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 
 export function Footer() {
   const { siteData } = useSiteData();
   const currentYear = new Date().getFullYear();
+  const [isConsentOpen, setIsConsentOpen] = useState(false);
 
   if (!siteData) {
     return null;
@@ -65,8 +67,7 @@ export function Footer() {
             <ul className="space-y-2 text-gray-400 text-sm">
               <li>{siteData.contactInfo.phone}</li>
               <li>{siteData.contactInfo.email}</li>
-              <li>{siteData.contactInfo.address}</li>
-              <li className="pt-2 text-xs">{siteData.contactInfo.workHours}</li>
+              <li>{siteData.contactInfo.contact}</li>
             </ul>
           </div>
         </div>
@@ -77,6 +78,13 @@ export function Footer() {
               © {currentYear} {siteData.psychologistName}. {siteData.uiText.footer.rightsSuffix}
             </p>
             <div className="flex items-center gap-4 mt-2 md:mt-0">
+              <button
+                type="button"
+                onClick={() => setIsConsentOpen(true)}
+                className="text-xs text-gray-400 hover:text-teal-400 transition-colors"
+              >
+                {siteData.uiText.footer.consentLabel}
+              </button>
               <p>{siteData.uiText.footer.roleLabel}</p>
               <Link 
                 to="/login" 
@@ -88,6 +96,35 @@ export function Footer() {
           </div>
         </div>
       </div>
+
+      {isConsentOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-2xl bg-white text-gray-900 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+              <h4 className="text-lg font-semibold">{siteData.uiText.footer.consentTitle}</h4>
+              <button
+                type="button"
+                onClick={() => setIsConsentOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="max-h-[70vh] overflow-y-auto px-6 py-5 text-sm leading-relaxed text-gray-700 whitespace-pre-line">
+              {siteData.uiText.footer.consentText}
+            </div>
+            <div className="border-t border-gray-200 px-6 py-4 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsConsentOpen(false)}
+                className="rounded-lg bg-teal-600 px-4 py-2 text-sm text-white hover:bg-teal-700"
+              >
+                Закрыть
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </footer>
   );
 }
