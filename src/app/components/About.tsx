@@ -48,7 +48,9 @@ export function About() {
         </div>
 
         <div className="bg-gray-50 p-8 rounded-2xl">
-          <h3 className="text-2xl text-gray-900 mb-6 text-center">{siteData.uiText.about.certificatesTitle}</h3>
+          <h3 className="text-3xl sm:text-4xl text-gray-900 mb-6 text-center">
+            {siteData.uiText.about.certificatesTitle}
+          </h3>
           {siteData.certificates.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {siteData.certificates.map((certificate) => (
