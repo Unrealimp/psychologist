@@ -350,15 +350,6 @@ export function AdminPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm mb-2">Опыт работы (лет)</label>
-                <input
-                  type="text"
-                  value={formData.yearsOfExperience}
-                  onChange={(e) => setFormData({ ...formData, yearsOfExperience: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
             </div>
           </div>
 
