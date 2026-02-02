@@ -1,7 +1,10 @@
-import { useSiteData } from '@/app/context/SiteDataContext';
+import { useState } from 'react';
+import { useSiteData, type Certificate } from '@/app/context/SiteDataContext';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/app/components/ui/dialog';
 
 export function About() {
   const { siteData } = useSiteData();
+  const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
 
   if (!siteData) {
     return null;
@@ -49,7 +52,12 @@ export function About() {
           {siteData.certificates.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {siteData.certificates.map((certificate) => (
-                <figure key={certificate.id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <button
+                  key={certificate.id}
+                  type="button"
+                  onClick={() => setSelectedCertificate(certificate)}
+                  className="text-left rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                >
                   <div className="aspect-[4/3] overflow-hidden rounded-lg bg-gray-100">
                     <img
                       src={certificate.imageUrl}
@@ -57,10 +65,10 @@ export function About() {
                       className="h-full w-full object-cover"
                     />
                   </div>
-                  <figcaption className="mt-3 text-sm text-gray-700">
+                  <div className="mt-3 text-sm text-gray-700">
                     {certificate.title}
-                  </figcaption>
-                </figure>
+                  </div>
+                </button>
               ))}
             </div>
           ) : (
@@ -69,6 +77,31 @@ export function About() {
             </p>
           )}
         </div>
+        <Dialog
+          open={Boolean(selectedCertificate)}
+          onOpenChange={(open) => {
+            if (!open) {
+              setSelectedCertificate(null);
+            }
+          }}
+        >
+          <DialogContent className="max-w-3xl p-0">
+            {selectedCertificate ? (
+              <div className="grid gap-4 p-6">
+                <DialogHeader>
+                  <DialogTitle>{selectedCertificate.title}</DialogTitle>
+                </DialogHeader>
+                <div className="overflow-hidden rounded-lg bg-gray-100">
+                  <img
+                    src={selectedCertificate.imageUrl}
+                    alt={selectedCertificate.title}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+              </div>
+            ) : null}
+          </DialogContent>
+        </Dialog>
       </div>
     </section>
   );
