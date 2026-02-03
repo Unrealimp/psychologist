@@ -1,11 +1,38 @@
-import { useRef, useState, type WheelEvent } from 'react';
+import { useEffect, useRef, useState, type WheelEvent } from 'react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useSiteData, type Certificate } from '@/app/context/SiteDataContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/app/components/ui/dialog';
 
 export function About() {
   const { siteData } = useSiteData();
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const certificatesRef = useRef<HTMLDivElement | null>(null);
+
+  const updateScrollButtons = () => {
+    const container = certificatesRef.current;
+    if (!container) {
+      return;
+    }
+
+    const maxScrollLeft = container.scrollWidth - container.clientWidth;
+    setCanScrollLeft(container.scrollLeft > 0);
+    setCanScrollRight(container.scrollLeft < maxScrollLeft - 1);
+  };
+
+  const handleCertificatesScroll = (direction: 'left' | 'right') => {
+    const container = certificatesRef.current;
+    if (!container) {
+      return;
+    }
+
+    const scrollAmount = Math.round(container.clientWidth * 0.75);
+    container.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth'
+    });
+  };
   const handleCertificatesWheel = (event: WheelEvent<HTMLDivElement>) => {
     if (!certificatesRef.current || event.shiftKey) {
       return;
@@ -18,6 +45,23 @@ export function About() {
       behavior: 'auto'
     });
   };
+
+  useEffect(() => {
+    updateScrollButtons();
+    const container = certificatesRef.current;
+    if (!container) {
+      return;
+    }
+
+    const handleScroll = () => updateScrollButtons();
+    container.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [siteData?.certificates.length]);
 
   if (!siteData) {
     return null;
@@ -65,6 +109,24 @@ export function About() {
             <div className="relative">
               <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-gray-50 to-transparent" />
               <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-gray-50 to-transparent" />
+              <button
+                type="button"
+                onClick={() => handleCertificatesScroll('left')}
+                aria-label="Прокрутить сертификаты влево"
+                disabled={!canScrollLeft}
+                className="absolute left-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-700 shadow-sm backdrop-blur transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 disabled:pointer-events-none disabled:opacity-40"
+              >
+                <ArrowLeft size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleCertificatesScroll('right')}
+                aria-label="Прокрутить сертификаты вправо"
+                disabled={!canScrollRight}
+                className="absolute right-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-700 shadow-sm backdrop-blur transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 disabled:pointer-events-none disabled:opacity-40"
+              >
+                <ArrowRight size={18} />
+              </button>
               <div
                 ref={certificatesRef}
                 onWheel={handleCertificatesWheel}
