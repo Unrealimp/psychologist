@@ -261,6 +261,9 @@ const isWorkFormat = (value) =>
   isString(value.description) &&
   isStringArray(value.bullets);
 
+const isConsentSection = (value) =>
+  isObject(value) && isString(value.title) && isStringArray(value.paragraphs);
+
 const isUiText = (value) =>
   isObject(value) &&
   isObject(value.navigation) &&
@@ -317,7 +320,9 @@ const isUiText = (value) =>
   isString(value.footer.adminLabel) &&
   isString(value.footer.consentLabel) &&
   isString(value.footer.consentTitle) &&
-  isString(value.footer.consentText);
+  ((value.footer.consentText !== undefined && isString(value.footer.consentText)) ||
+    (Array.isArray(value.footer.consentSections) &&
+      value.footer.consentSections.every(isConsentSection)));
 
 const validateUiTextUpdate = (value) => {
   if (!isObject(value)) {
@@ -414,7 +419,10 @@ const validateUiTextUpdate = (value) => {
       (value.footer.adminLabel !== undefined && !isString(value.footer.adminLabel)) ||
       (value.footer.consentLabel !== undefined && !isString(value.footer.consentLabel)) ||
       (value.footer.consentTitle !== undefined && !isString(value.footer.consentTitle)) ||
-      (value.footer.consentText !== undefined && !isString(value.footer.consentText))
+      (value.footer.consentText !== undefined && !isString(value.footer.consentText)) ||
+      (value.footer.consentSections !== undefined &&
+        (!Array.isArray(value.footer.consentSections) ||
+          !value.footer.consentSections.every(isConsentSection)))
     ) {
       return { ok: false, error: 'Invalid uiText.footer' };
     }
