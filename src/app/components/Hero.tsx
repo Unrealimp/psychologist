@@ -32,12 +32,6 @@ export function Hero() {
               >
                 {siteData.uiText.hero.primaryCta}
               </button>
-              <button
-                onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
-                className="px-8 py-3 border-2 border-teal-600 text-teal-600 rounded-lg hover:bg-teal-50 transition-colors"
-              >
-                {siteData.uiText.hero.secondaryCta}
-              </button>
             </div>
           </div>
           <div className="relative">
