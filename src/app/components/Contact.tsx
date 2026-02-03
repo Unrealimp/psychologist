@@ -169,6 +169,7 @@ export function Contact() {
           </div>
 
           {/* Contact Form */}
+          {/*
           <div>
             <div className="bg-white border-2 border-gray-100 rounded-2xl p-8 shadow-lg">
               <h3 className="text-2xl text-gray-900 mb-6">{siteData.uiText.contact.formTitle}</h3>
@@ -251,6 +252,7 @@ export function Contact() {
               </form>
             </div>
           </div>
+          */}
         </div>
       </div>
     </section>
