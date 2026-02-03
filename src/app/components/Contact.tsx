@@ -57,6 +57,14 @@ export function Contact() {
     if (normalized.includes('email') || normalized.includes('почт')) {
       return Mail;
     }
+    if (
+      normalized.includes('telegram') ||
+      normalized.includes('телеграм') ||
+      normalized.includes('messenger') ||
+      normalized.includes('мессенджер')
+    ) {
+      return Send;
+    }
     return MessageCircle;
   };
 
