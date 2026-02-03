@@ -119,8 +119,21 @@ export function Footer() {
                 ✕
               </button>
             </div>
-            <div className="max-h-[70vh] overflow-y-auto px-6 py-5 text-sm leading-relaxed text-gray-700 whitespace-pre-line">
-              {siteData.uiText.footer.consentText}
+            <div className="max-h-[70vh] overflow-y-auto px-6 py-5">
+              <div className="space-y-6 text-sm sm:text-base leading-relaxed text-gray-700">
+                {siteData.uiText.footer.consentSections.map((section, sectionIndex) => (
+                  <section key={`${section.title}-${sectionIndex}`} className="space-y-3">
+                    <h5 className="text-base sm:text-lg font-semibold text-gray-900">{section.title}</h5>
+                    <div className="space-y-3">
+                      {section.paragraphs.map((paragraph, paragraphIndex) => (
+                        <p key={`${section.title}-${paragraphIndex}`} className="indent-6">
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
             </div>
             <div className="border-t border-gray-200 px-6 py-4 flex justify-end">
               <button

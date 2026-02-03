@@ -94,7 +94,10 @@ export interface UiText {
     adminLabel: string;
     consentLabel: string;
     consentTitle: string;
-    consentText: string;
+    consentSections: {
+      title: string;
+      paragraphs: string[];
+    }[];
   };
 }
 
