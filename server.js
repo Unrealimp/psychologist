@@ -433,6 +433,7 @@ const isSiteData = (value) =>
   isString(value.aboutDescription1) &&
   isString(value.aboutDescription2) &&
   isString(value.aboutDescription3) &&
+  isString(value.aboutDescription4) &&
   isStringArray(value.education) &&
   isCertificateArray(value.certificates) &&
   isServiceArray(value.services) &&
@@ -460,6 +461,7 @@ const validateSiteDataUpdate = (updates) => {
     'aboutDescription1',
     'aboutDescription2',
     'aboutDescription3',
+    'aboutDescription4',
     'education',
     'certificates',
     'services',
@@ -499,6 +501,9 @@ const validateSiteDataUpdate = (updates) => {
   }
   if (updates.aboutDescription3 !== undefined && !isString(updates.aboutDescription3)) {
     return { ok: false, error: 'Invalid aboutDescription3' };
+  }
+  if (updates.aboutDescription4 !== undefined && !isString(updates.aboutDescription4)) {
+    return { ok: false, error: 'Invalid aboutDescription4' };
   }
   if (updates.education !== undefined && !isStringArray(updates.education)) {
     return { ok: false, error: 'Invalid education' };
