@@ -112,7 +112,12 @@ export function Contact() {
                     <div className="ml-4">
                       <div className="text-sm text-gray-500">{item.label}</div>
                       {item.link ? (
-                        <a href={item.link} className="text-gray-900 hover:text-teal-600 transition-colors">
+                        <a
+                          href={item.link}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-gray-900 hover:text-teal-600 transition-colors"
+                        >
                           {item.value}
                         </a>
                       ) : (
@@ -138,6 +143,8 @@ export function Contact() {
                           {item.url ? (
                             <a
                               href={item.url}
+                              target="_blank"
+                              rel="noreferrer"
                               className="text-gray-900 hover:text-teal-600 transition-colors"
                             >
                               {item.url}

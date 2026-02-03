@@ -69,7 +69,12 @@ export function Footer() {
                 <li key={item.id}>
                   <span className="font-medium text-gray-300">{item.label}:</span>{' '}
                   {item.link ? (
-                    <a href={item.link} className="hover:text-teal-400 transition-colors">
+                    <a
+                      href={item.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="hover:text-teal-400 transition-colors"
+                    >
                       {item.value}
                     </a>
                   ) : (
@@ -95,8 +100,10 @@ export function Footer() {
                 {siteData.uiText.footer.consentLabel}
               </button>
               <p>{siteData.uiText.footer.roleLabel}</p>
-              <Link 
-                to="/login" 
+              <Link
+                to="/login"
+                target="_blank"
+                rel="noreferrer"
                 className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
               >
                 {siteData.uiText.footer.adminLabel}
