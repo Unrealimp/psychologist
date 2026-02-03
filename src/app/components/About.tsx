@@ -11,8 +11,10 @@ export function About() {
       return;
     }
 
+    event.preventDefault();
+
     certificatesRef.current.scrollBy({
-      left: event.deltaY,
+      left: event.deltaY + event.deltaX,
       behavior: 'auto'
     });
   };
@@ -67,7 +69,7 @@ export function About() {
                 ref={certificatesRef}
                 onWheel={handleCertificatesWheel}
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth touch-pan-x [&::-webkit-scrollbar]:hidden"
+                className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth touch-pan-x overscroll-x-contain overscroll-y-none [&::-webkit-scrollbar]:hidden"
               >
                 {siteData.certificates.map((certificate) => (
                   <button
