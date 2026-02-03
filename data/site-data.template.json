@@ -117,9 +117,15 @@
     },
     {
       "id": "contact-telegram",
-      "label": "Telegram",
+      "label": "Messenger",
       "value": "@DianaPopovich",
       "link": "https://t.me/DianaPopovich"
+    },
+    {
+      "id": "1770113943084",
+      "label": "Мои статьи",
+      "value": "https://b17.ru/popovich_diana/",
+      "link": "https://b17.ru/popovich_diana/"
     }
   ],
   "contactLinks": [],
