@@ -100,159 +100,160 @@ export function Contact() {
 
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Contact Information */}
-          <div className="space-y-8">
-            <div className="bg-gradient-to-br from-teal-50 to-blue-50 rounded-2xl p-8">
-              <h3 className="text-2xl text-gray-900 mb-6">{siteData.uiText.contact.infoTitle}</h3>
-              <div className="space-y-6">
-                {contactInfo.map((item, index) => (
-                  <div key={index} className="flex items-start">
-                    <div className="flex-shrink-0 w-12 h-12 bg-teal-600 text-white rounded-lg flex items-center justify-center">
-                      <item.icon size={20} />
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm text-gray-500">{item.label}</div>
-                      {item.link ? (
-                        <a
-                          href={item.link}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-gray-900 hover:text-teal-600 transition-colors"
-                        >
-                          {item.value}
-                        </a>
-                      ) : (
-                        <div className="text-gray-900">{item.value}</div>
-                      )}
-                    </div>
+          <div className="bg-gradient-to-br from-teal-50 to-blue-50 rounded-2xl p-8">
+            <h3 className="text-2xl text-gray-900 mb-6">{siteData.uiText.contact.infoTitle}</h3>
+            <div className="space-y-6">
+              {contactInfo.map((item, index) => (
+                <div key={index} className="flex items-start">
+                  <div className="flex-shrink-0 w-12 h-12 bg-teal-600 text-white rounded-lg flex items-center justify-center">
+                    <item.icon size={20} />
                   </div>
-                ))}
-              </div>
-              {contactLinks.length > 0 && (
-                <div className="mt-8 pt-6 border-t border-teal-100">
-                  <h4 className="text-sm uppercase tracking-wide text-gray-500 mb-4">
-                    {siteData.uiText.contact.linksTitle || 'Ссылки'}
-                  </h4>
-                  <div className="space-y-4">
-                    {contactLinks.map((item) => (
-                      <div key={item.id} className="flex items-start">
-                        <div className="flex-shrink-0 w-10 h-10 bg-white text-teal-600 rounded-lg border border-teal-100 flex items-center justify-center">
-                          <Link2 size={18} />
-                        </div>
-                        <div className="ml-3">
-                          <div className="text-sm text-gray-500">{item.label}</div>
-                          {item.url ? (
-                            <a
-                              href={item.url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-gray-900 hover:text-teal-600 transition-colors"
-                            >
-                              {item.url}
-                            </a>
-                          ) : (
-                            <div className="text-gray-900">—</div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                  <div className="ml-4">
+                    <div className="text-sm text-gray-500">{item.label}</div>
+                    {item.link ? (
+                      <a
+                        href={item.link}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-gray-900 hover:text-teal-600 transition-colors"
+                      >
+                        {item.value}
+                      </a>
+                    ) : (
+                      <div className="text-gray-900">{item.value}</div>
+                    )}
                   </div>
                 </div>
-              )}
+              ))}
             </div>
+            {contactLinks.length > 0 && (
+              <div className="mt-8 pt-6 border-t border-teal-100">
+                <h4 className="text-sm uppercase tracking-wide text-gray-500 mb-4">
+                  {siteData.uiText.contact.linksTitle || 'Ссылки'}
+                </h4>
+                <div className="space-y-4">
+                  {contactLinks.map((item) => (
+                    <div key={item.id} className="flex items-start">
+                      <div className="flex-shrink-0 w-10 h-10 bg-white text-teal-600 rounded-lg border border-teal-100 flex items-center justify-center">
+                        <Link2 size={18} />
+                      </div>
+                      <div className="ml-3">
+                        <div className="text-sm text-gray-500">{item.label}</div>
+                        {item.url ? (
+                          <a
+                            href={item.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-gray-900 hover:text-teal-600 transition-colors"
+                          >
+                            {item.url}
+                          </a>
+                        ) : (
+                          <div className="text-gray-900">—</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
+          {/* Privacy + (optional) Contact Form */}
+          <div className="space-y-8">
             <div className="bg-gray-50 rounded-2xl p-8">
               <h3 className="text-xl text-gray-900 mb-4">{siteData.uiText.contact.privacyTitle}</h3>
               <p className="text-gray-600 text-sm">
                 {siteData.uiText.contact.privacyDescription}
               </p>
             </div>
-          </div>
 
-          {/* Contact Form */}
-          {/*
-          <div>
-            <div className="bg-white border-2 border-gray-100 rounded-2xl p-8 shadow-lg">
-              <h3 className="text-2xl text-gray-900 mb-6">{siteData.uiText.contact.formTitle}</h3>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm text-gray-700 mb-2">
-                    {siteData.uiText.contact.formLabels.name}
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    required
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    placeholder={siteData.uiText.contact.formPlaceholders.name}
-                  />
-                </div>
+            {/* Contact Form */}
+            {/*
+            <div>
+              <div className="bg-white border-2 border-gray-100 rounded-2xl p-8 shadow-lg">
+                <h3 className="text-2xl text-gray-900 mb-6">{siteData.uiText.contact.formTitle}</h3>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div>
+                    <label htmlFor="name" className="block text-sm text-gray-700 mb-2">
+                      {siteData.uiText.contact.formLabels.name}
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      required
+                      value={formData.name}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      placeholder={siteData.uiText.contact.formPlaceholders.name}
+                    />
+                  </div>
 
-                <div>
-                  <label htmlFor="email" className="block text-sm text-gray-700 mb-2">
-                    {siteData.uiText.contact.formLabels.email}
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    placeholder={siteData.uiText.contact.formPlaceholders.email}
-                  />
-                </div>
+                  <div>
+                    <label htmlFor="email" className="block text-sm text-gray-700 mb-2">
+                      {siteData.uiText.contact.formLabels.email}
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      placeholder={siteData.uiText.contact.formPlaceholders.email}
+                    />
+                  </div>
 
-                <div>
-                  <label htmlFor="phone" className="block text-sm text-gray-700 mb-2">
-                    {siteData.uiText.contact.formLabels.phone}
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    required
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    placeholder={siteData.uiText.contact.formPlaceholders.phone}
-                  />
-                </div>
+                  <div>
+                    <label htmlFor="phone" className="block text-sm text-gray-700 mb-2">
+                      {siteData.uiText.contact.formLabels.phone}
+                    </label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      required
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      placeholder={siteData.uiText.contact.formPlaceholders.phone}
+                    />
+                  </div>
 
-                <div>
-                  <label htmlFor="message" className="block text-sm text-gray-700 mb-2">
-                    {siteData.uiText.contact.formLabels.message}
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows={4}
-                    value={formData.message}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
-                    placeholder={siteData.uiText.contact.formPlaceholders.message}
-                  />
-                </div>
+                  <div>
+                    <label htmlFor="message" className="block text-sm text-gray-700 mb-2">
+                      {siteData.uiText.contact.formLabels.message}
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      rows={4}
+                      value={formData.message}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+                      placeholder={siteData.uiText.contact.formPlaceholders.message}
+                    />
+                  </div>
 
-                <button
-                  type="submit"
-                  className="w-full px-8 py-4 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2 disabled:cursor-not-allowed disabled:bg-teal-400"
-                  disabled={isSubmitting}
-                >
-                  <Send size={20} />
-                  {isSubmitting ? siteData.uiText.contact.submitLoading : siteData.uiText.contact.submitIdle}
-                </button>
+                  <button
+                    type="submit"
+                    className="w-full px-8 py-4 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2 disabled:cursor-not-allowed disabled:bg-teal-400"
+                    disabled={isSubmitting}
+                  >
+                    <Send size={20} />
+                    {isSubmitting ? siteData.uiText.contact.submitLoading : siteData.uiText.contact.submitIdle}
+                  </button>
 
-                <p className="text-xs text-gray-500 text-center">
-                  {siteData.uiText.contact.consentText}
-                </p>
-              </form>
+                  <p className="text-xs text-gray-500 text-center">
+                    {siteData.uiText.contact.consentText}
+                  </p>
+                </form>
+              </div>
             </div>
+            */}
           </div>
-          */}
         </div>
       </div>
     </section>
