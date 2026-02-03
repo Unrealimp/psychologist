@@ -1,4 +1,4 @@
-import { Mail, Phone, Send, MessageCircle, Link2 } from 'lucide-react';
+import { Mail, Phone, Send, MessageCircle, Link2, BookOpen } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useSiteData } from '@/app/context/SiteDataContext';
@@ -64,6 +64,13 @@ export function Contact() {
       normalized.includes('мессенджер')
     ) {
       return Send;
+    }
+    if (
+      normalized.includes('статьи') ||
+      normalized.includes('article') ||
+      normalized.includes('blog')
+    ) {
+      return BookOpen;
     }
     return MessageCircle;
   };
