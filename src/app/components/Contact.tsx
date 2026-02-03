@@ -1,4 +1,4 @@
-import { Mail, Phone, Send, MessageCircle } from 'lucide-react';
+import { Mail, Phone, Send, MessageCircle, Link2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useSiteData } from '@/app/context/SiteDataContext';
@@ -74,6 +74,11 @@ export function Contact() {
     link: item.link?.trim() || null
   }));
 
+  const contactLinks = siteData.contactLinks.map((item) => ({
+    ...item,
+    url: item.url?.trim() || ''
+  }));
+
   return (
     <section id="contact" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -110,6 +115,35 @@ export function Contact() {
                   </div>
                 ))}
               </div>
+              {contactLinks.length > 0 && (
+                <div className="mt-8 pt-6 border-t border-teal-100">
+                  <h4 className="text-sm uppercase tracking-wide text-gray-500 mb-4">
+                    {siteData.uiText.contact.linksTitle || 'Ссылки'}
+                  </h4>
+                  <div className="space-y-4">
+                    {contactLinks.map((item) => (
+                      <div key={item.id} className="flex items-start">
+                        <div className="flex-shrink-0 w-10 h-10 bg-white text-teal-600 rounded-lg border border-teal-100 flex items-center justify-center">
+                          <Link2 size={18} />
+                        </div>
+                        <div className="ml-3">
+                          <div className="text-sm text-gray-500">{item.label}</div>
+                          {item.url ? (
+                            <a
+                              href={item.url}
+                              className="text-gray-900 hover:text-teal-600 transition-colors"
+                            >
+                              {item.url}
+                            </a>
+                          ) : (
+                            <div className="text-gray-900">—</div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="bg-gray-50 rounded-2xl p-8">

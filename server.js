@@ -252,6 +252,14 @@ const isContactInfoItem = (value) =>
 
 const isContactInfo = (value) => Array.isArray(value) && value.every(isContactInfoItem);
 
+const isContactLinkItem = (value) =>
+  isObject(value) &&
+  isString(value.id) &&
+  isString(value.label) &&
+  isString(value.url);
+
+const isContactLinks = (value) => Array.isArray(value) && value.every(isContactLinkItem);
+
 const isAboutHighlight = (value) =>
   isObject(value) && isString(value.icon) && isString(value.title) && isString(value.description);
 
@@ -292,6 +300,7 @@ const isUiText = (value) =>
   isString(value.contact.title) &&
   isString(value.contact.subtitle) &&
   isString(value.contact.infoTitle) &&
+  isString(value.contact.linksTitle) &&
   isString(value.contact.privacyTitle) &&
   isString(value.contact.privacyDescription) &&
   isString(value.contact.formTitle) &&
@@ -382,6 +391,7 @@ const validateUiTextUpdate = (value) => {
       (value.contact.title !== undefined && !isString(value.contact.title)) ||
       (value.contact.subtitle !== undefined && !isString(value.contact.subtitle)) ||
       (value.contact.infoTitle !== undefined && !isString(value.contact.infoTitle)) ||
+      (value.contact.linksTitle !== undefined && !isString(value.contact.linksTitle)) ||
       (value.contact.privacyTitle !== undefined && !isString(value.contact.privacyTitle)) ||
       (value.contact.privacyDescription !== undefined && !isString(value.contact.privacyDescription)) ||
       (value.contact.formTitle !== undefined && !isString(value.contact.formTitle)) ||
@@ -446,12 +456,14 @@ const isSiteData = (value) =>
   isCertificateArray(value.certificates) &&
   isServiceArray(value.services) &&
   isContactInfo(value.contactInfo) &&
+  isContactLinks(value.contactLinks) &&
   isUiText(value.uiText);
 
 const mergeSiteData = (current, updates) => ({
   ...current,
   ...updates,
   contactInfo: updates.contactInfo ? updates.contactInfo : current.contactInfo,
+  contactLinks: updates.contactLinks ? updates.contactLinks : current.contactLinks,
   uiText: updates.uiText ? { ...current.uiText, ...updates.uiText } : current.uiText,
 });
 
@@ -474,6 +486,7 @@ const validateSiteDataUpdate = (updates) => {
     'certificates',
     'services',
     'contactInfo',
+    'contactLinks',
     'uiText'
   ]);
 
@@ -527,6 +540,11 @@ const validateSiteDataUpdate = (updates) => {
       return { ok: false, error: 'Invalid contactInfo' };
     }
   }
+  if (updates.contactLinks !== undefined) {
+    if (!isContactLinks(updates.contactLinks)) {
+      return { ok: false, error: 'Invalid contactLinks' };
+    }
+  }
   if (updates.uiText !== undefined) {
     const uiTextValidation = validateUiTextUpdate(updates.uiText);
     if (!uiTextValidation.ok) {
@@ -566,6 +584,29 @@ const restoreFromTemplate = (reason) => {
   }
 };
 
+const normalizeSiteData = (value) => {
+  if (!isObject(value)) return value;
+  const next = { ...value };
+
+  if (!Array.isArray(next.contactLinks)) {
+    next.contactLinks = [];
+  }
+
+  if (isObject(next.uiText) && isObject(next.uiText.contact)) {
+    if (!isString(next.uiText.contact.linksTitle)) {
+      next.uiText = {
+        ...next.uiText,
+        contact: {
+          ...next.uiText.contact,
+          linksTitle: 'Ссылки'
+        }
+      };
+    }
+  }
+
+  return next;
+};
+
 const loadSiteData = () => {
   try {
     if (!fs.existsSync(siteDataPath)) {
@@ -574,11 +615,12 @@ const loadSiteData = () => {
     const raw = fs.readFileSync(siteDataPath, 'utf8');
     try {
       const parsed = JSON.parse(raw);
-      if (!isSiteData(parsed)) {
+      const normalized = normalizeSiteData(parsed);
+      if (!isSiteData(normalized)) {
         console.error('Site data has invalid shape, restoring from template.');
         return restoreFromTemplate('invalid-shape');
       }
-      return parsed;
+      return normalized;
     } catch (error) {
       console.error('Site data JSON is invalid, restoring from template:', error);
       return restoreFromTemplate('invalid-json');

@@ -22,6 +22,12 @@ export interface ContactInfoItem {
   link?: string;
 }
 
+export interface ContactLinkItem {
+  id: string;
+  label: string;
+  url: string;
+}
+
 export interface AboutHighlight {
   icon: string;
   title: string;
@@ -63,6 +69,7 @@ export interface UiText {
     title: string;
     subtitle: string;
     infoTitle: string;
+    linksTitle: string;
     privacyTitle: string;
     privacyDescription: string;
     formTitle: string;
@@ -116,6 +123,7 @@ export interface SiteData {
   certificates: Certificate[];
   services: Service[];
   contactInfo: ContactInfoItem[];
+  contactLinks: ContactLinkItem[];
   uiText: UiText;
 }
 

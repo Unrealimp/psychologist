@@ -177,6 +177,37 @@ export function AdminPage() {
     });
   };
 
+  const handleContactLinkChange = (id: string, field: 'label' | 'url', value: string) => {
+    if (!formData) return;
+    setFormData({
+      ...formData,
+      contactLinks: formData.contactLinks.map((item) =>
+        item.id === id ? { ...item, [field]: value } : item
+      )
+    });
+  };
+
+  const handleAddContactLink = () => {
+    if (!formData) return;
+    const newItem = {
+      id: Date.now().toString(),
+      label: '',
+      url: ''
+    };
+    setFormData({
+      ...formData,
+      contactLinks: [...formData.contactLinks, newItem]
+    });
+  };
+
+  const handleRemoveContactLink = (id: string) => {
+    if (!formData) return;
+    setFormData({
+      ...formData,
+      contactLinks: formData.contactLinks.filter((item) => item.id !== id)
+    });
+  };
+
   const updateServicesText = (
     updater: (current: NonNullable<typeof formData>['uiText']['services']) => NonNullable<typeof formData>['uiText']['services']
   ) => {
@@ -796,6 +827,20 @@ export function AdminPage() {
           {/* Контакты */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl mb-4">Как связаться со мной</h2>
+            <div className="mb-6">
+              <label className="block text-sm mb-2">Заголовок раздела ссылок</label>
+              <input
+                type="text"
+                value={formData.uiText.contact.linksTitle}
+                onChange={(e) =>
+                  updateContactText((contactText) => ({
+                    ...contactText,
+                    linksTitle: e.target.value
+                  }))
+                }
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
             <div className="space-y-4">
               {formData.contactInfo.map((item) => (
                 <div key={item.id} className="space-y-3 rounded-lg border border-gray-100 p-4">
@@ -848,6 +893,55 @@ export function AdminPage() {
                 <Plus size={16} />
                 Добавить контакт
               </button>
+            </div>
+
+            <div className="mt-6 border-t pt-6">
+              <h3 className="text-lg mb-4">Ссылки</h3>
+              <div className="space-y-4">
+                {formData.contactLinks.map((item) => (
+                  <div key={item.id} className="space-y-3 rounded-lg border border-gray-100 p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="grid flex-1 gap-3 md:grid-cols-2">
+                        <div>
+                          <label className="block text-sm mb-2">Название</label>
+                          <input
+                            type="text"
+                            value={item.label}
+                            onChange={(e) => handleContactLinkChange(item.id, 'label', e.target.value)}
+                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm mb-2">URL</label>
+                          <input
+                            type="url"
+                            value={item.url}
+                            onChange={(e) => handleContactLinkChange(item.id, 'url', e.target.value)}
+                            placeholder="https://..."
+                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                          />
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveContactLink(item.id)}
+                        className="mt-6 text-red-500 hover:text-red-700"
+                        aria-label="Удалить ссылку"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={handleAddContactLink}
+                  className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+                >
+                  <Plus size={16} />
+                  Добавить ссылку
+                </button>
+              </div>
             </div>
           </div>
 
