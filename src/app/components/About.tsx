@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type WheelEvent } from 'react';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Award, BookOpen, Clock, GraduationCap, HeartHandshake } from 'lucide-react';
 import { useSiteData, type Certificate } from '@/app/context/SiteDataContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/app/components/ui/dialog';
 
@@ -67,6 +67,14 @@ export function About() {
     return null;
   }
 
+  const highlightIcons = {
+    Award,
+    BookOpen,
+    Clock,
+    GraduationCap,
+    HeartHandshake
+  };
+
   return (
     <section id="about" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -98,6 +106,28 @@ export function About() {
             </div>
           </div>
         </div>
+
+        {siteData.uiText.about.highlights.length > 0 && (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-16">
+            {siteData.uiText.about.highlights.map((highlight, index) => {
+              const Icon = highlightIcons[highlight.icon as keyof typeof highlightIcons] ?? Award;
+              return (
+                <div
+                  key={`${highlight.title}-${index}`}
+                  className="bg-teal-50/70 border border-teal-100 rounded-2xl p-6 text-center shadow-sm"
+                >
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-teal-600 text-white shadow-sm">
+                    <Icon size={22} />
+                  </div>
+                  <div className="text-lg font-semibold text-gray-900">{highlight.title}</div>
+                  {highlight.description ? (
+                    <div className="mt-2 text-sm text-gray-600">{highlight.description}</div>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         <div className="bg-gray-50 p-8 rounded-2xl">
           <div className="mb-6">

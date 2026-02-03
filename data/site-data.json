@@ -147,18 +147,23 @@
       "highlights": [
         {
           "icon": "Award",
-          "title": "1000+",
-          "description": "за плечами часов практики"
+          "title": "1000+ часов практики",
+          "description": ""
         },
         {
-          "icon": "Users",
-          "title": "3000+",
-          "description": "часов обучения"
+          "icon": "GraduationCap",
+          "title": "3000+ часов обучения",
+          "description": ""
         },
         {
-          "icon": "BookOpen",
-          "title": "50+",
-          "description": "часов супервизии и индивидуальной терапии."
+          "icon": "HeartHandshake",
+          "title": "50+ часов супервизии и индивидуальной терапии",
+          "description": ""
+        },
+        {
+          "icon": "Clock",
+          "title": "3 года опыта",
+          "description": ""
         }
       ]
     },
