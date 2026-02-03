@@ -1,10 +1,23 @@
-import { useState } from 'react';
+import { useRef, useState, type WheelEvent } from 'react';
 import { useSiteData, type Certificate } from '@/app/context/SiteDataContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/app/components/ui/dialog';
 
 export function About() {
   const { siteData } = useSiteData();
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
+  const certificatesRef = useRef<HTMLDivElement | null>(null);
+  const handleCertificatesWheel = (event: WheelEvent<HTMLDivElement>) => {
+    if (!certificatesRef.current || event.shiftKey) {
+      return;
+    }
+
+    event.preventDefault();
+
+    certificatesRef.current.scrollBy({
+      left: event.deltaY + event.deltaX,
+      behavior: 'auto'
+    });
+  };
 
   if (!siteData) {
     return null;
@@ -43,26 +56,39 @@ export function About() {
         </div>
 
         <div className="bg-gray-50 p-8 rounded-2xl">
-          <h3 className="text-2xl text-gray-900 mb-6 text-center">{siteData.uiText.about.certificatesTitle}</h3>
+          <div className="mb-6">
+            <h3 className="text-2xl text-gray-900 text-center sm:text-left">
+              {siteData.uiText.about.certificatesTitle}
+            </h3>
+          </div>
           {siteData.certificates.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {siteData.certificates.map((certificate) => (
-                <button
-                  key={certificate.id}
-                  type="button"
-                  onClick={() => setSelectedCertificate(certificate)}
-                  className="text-left rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
-                >
-                  <div className="aspect-[4/3] overflow-hidden rounded-lg bg-gray-100">
-                    <img
-                      src={certificate.imageUrl}
-                      alt={certificate.title}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="mt-3 text-sm text-gray-700">{certificate.title}</div>
-                </button>
-              ))}
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-gray-50 to-transparent" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-gray-50 to-transparent" />
+              <div
+                ref={certificatesRef}
+                onWheel={handleCertificatesWheel}
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth touch-pan-x overscroll-x-contain overscroll-y-none [&::-webkit-scrollbar]:hidden"
+              >
+                {siteData.certificates.map((certificate) => (
+                  <button
+                    key={certificate.id}
+                    type="button"
+                    onClick={() => setSelectedCertificate(certificate)}
+                    className="min-w-[260px] w-[280px] flex-shrink-0 snap-start text-left rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                  >
+                    <div className="aspect-[4/3] overflow-hidden rounded-xl bg-gray-100">
+                      <img
+                        src={certificate.imageUrl}
+                        alt={certificate.title}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="mt-3 text-sm font-medium text-gray-800">{certificate.title}</div>
+                  </button>
+                ))}
+              </div>
             </div>
           ) : (
             <p className="text-sm text-gray-600 text-center">
