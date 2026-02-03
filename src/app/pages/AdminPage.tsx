@@ -478,9 +478,12 @@ export function AdminPage() {
                 Добавить
               </button>
             </div>
-            <div className="space-y-4">
+            <div className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory">
               {formData.certificates.map((certificate) => (
-                <div key={certificate.id} className="border rounded-lg p-4 space-y-3">
+                <div
+                  key={certificate.id}
+                  className="border rounded-lg p-4 space-y-3 min-w-[280px] w-[320px] flex-shrink-0 snap-start"
+                >
                   <div className="flex justify-between items-start">
                     <h3 className="text-sm text-gray-500">Сертификат #{certificate.id}</h3>
                     <button
@@ -528,10 +531,10 @@ export function AdminPage() {
                   ) : null}
                 </div>
               ))}
-              {formData.certificates.length === 0 ? (
-                <p className="text-sm text-gray-500">Добавьте изображения сертификатов или дипломов.</p>
-              ) : null}
             </div>
+            {formData.certificates.length === 0 ? (
+              <p className="text-sm text-gray-500">Добавьте изображения сертификатов или дипломов.</p>
+            ) : null}
           </div>
 
           {/* Услуги */}
