@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type WheelEvent } from 'react';
 import { useSiteData, type Certificate } from '@/app/context/SiteDataContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/app/components/ui/dialog';
 
@@ -6,16 +6,14 @@ export function About() {
   const { siteData } = useSiteData();
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
   const certificatesRef = useRef<HTMLDivElement | null>(null);
-
-  const scrollCertificates = (direction: 'prev' | 'next') => {
-    if (!certificatesRef.current) {
+  const handleCertificatesWheel = (event: WheelEvent<HTMLDivElement>) => {
+    if (!certificatesRef.current || event.shiftKey) {
       return;
     }
 
-    const scrollAmount = certificatesRef.current.clientWidth * 0.8;
     certificatesRef.current.scrollBy({
-      left: direction === 'next' ? scrollAmount : -scrollAmount,
-      behavior: 'smooth'
+      left: event.deltaY,
+      behavior: 'auto'
     });
   };
 
@@ -56,30 +54,10 @@ export function About() {
         </div>
 
         <div className="bg-gray-50 p-8 rounded-2xl">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+          <div className="mb-6">
             <h3 className="text-2xl text-gray-900 text-center sm:text-left">
               {siteData.uiText.about.certificatesTitle}
             </h3>
-            {siteData.certificates.length > 0 ? (
-              <div className="flex items-center justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => scrollCertificates('prev')}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition hover:border-teal-200 hover:text-teal-600 hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
-                  aria-label="Прокрутить сертификаты влево"
-                >
-                  ←
-                </button>
-                <button
-                  type="button"
-                  onClick={() => scrollCertificates('next')}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition hover:border-teal-200 hover:text-teal-600 hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
-                  aria-label="Прокрутить сертификаты вправо"
-                >
-                  →
-                </button>
-              </div>
-            ) : null}
           </div>
           {siteData.certificates.length > 0 ? (
             <div className="relative">
@@ -87,7 +65,9 @@ export function About() {
               <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-gray-50 to-transparent" />
               <div
                 ref={certificatesRef}
-                className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth"
+                onWheel={handleCertificatesWheel}
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth touch-pan-x [&::-webkit-scrollbar]:hidden"
               >
                 {siteData.certificates.map((certificate) => (
                   <button
