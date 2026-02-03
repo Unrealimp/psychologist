@@ -108,6 +108,7 @@ export interface SiteData {
   aboutDescription1: string;
   aboutDescription2: string;
   aboutDescription3: string;
+  aboutDescription4: string;
   education: string[];
   certificates: Certificate[];
   services: Service[];

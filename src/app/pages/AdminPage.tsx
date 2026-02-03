@@ -418,6 +418,16 @@ export function AdminPage() {
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
+
+              <div>
+                <label className="block text-sm mb-2">Четвертый абзац</label>
+                <textarea
+                  value={formData.aboutDescription4}
+                  onChange={(e) => setFormData({ ...formData, aboutDescription4: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
             </div>
           </div>
 

@@ -24,6 +24,7 @@ export function About() {
             <p className="text-gray-700">{siteData.aboutDescription1}</p>
             <p className="text-gray-700">{siteData.aboutDescription2}</p>
             <p className="text-gray-700">{siteData.aboutDescription3}</p>
+            <p className="text-gray-700">{siteData.aboutDescription4}</p>
           </div>
 
           <div className="space-y-6">
