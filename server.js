@@ -4,6 +4,7 @@ import net from 'net';
 import path from 'path';
 import tls from 'tls';
 import crypto from 'crypto';
+import zlib from 'zlib';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -208,6 +209,62 @@ const getContentType = (filePath) => {
     default:
       return 'application/octet-stream';
   }
+};
+
+const ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
+const CACHEABLE_EXTENSIONS = new Set([
+  '.js',
+  '.css',
+  '.svg',
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.webp',
+  '.avif',
+  '.ico',
+  '.woff',
+  '.woff2',
+  '.ttf',
+  '.eot'
+]);
+
+const getCacheControl = (filePath) => {
+  if (filePath.endsWith('index.html') || path.extname(filePath) === '.html') {
+    return 'no-cache';
+  }
+  if (CACHEABLE_EXTENSIONS.has(path.extname(filePath))) {
+    return `public, max-age=${ONE_YEAR_IN_SECONDS}, immutable`;
+  }
+  return 'public, max-age=3600';
+};
+
+const isCompressible = (contentType) => {
+  if (!contentType) return false;
+  return (
+    contentType.startsWith('text/') ||
+    contentType.includes('javascript') ||
+    contentType.includes('json') ||
+    contentType.includes('xml') ||
+    contentType.includes('svg')
+  );
+};
+
+const getCompressionStream = (req, res, contentType) => {
+  const acceptEncoding = req.headers['accept-encoding'] || '';
+  if (!isCompressible(contentType)) return null;
+  if (/\bbr\b/.test(acceptEncoding)) {
+    res.setHeader('Content-Encoding', 'br');
+    return zlib.createBrotliCompress({
+      params: {
+        [zlib.constants.BROTLI_PARAM_QUALITY]: 5
+      }
+    });
+  }
+  if (/\bgzip\b/.test(acceptEncoding)) {
+    res.setHeader('Content-Encoding', 'gzip');
+    return zlib.createGzip({ level: 6 });
+  }
+  return null;
 };
 
 const ensureDataDir = () => {
@@ -744,14 +801,24 @@ const server = http.createServer(async (req, res) => {
     if (!stat.isFile()) return false;
 
     const contentType = getContentType(targetPath);
-    res.writeHead(200, { 'Content-Type': contentType });
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Cache-Control', getCacheControl(targetPath));
+    res.setHeader('Vary', 'Accept-Encoding');
+
+    const compressionStream = getCompressionStream(req, res, contentType);
+    res.writeHead(200);
 
     if (req.method === 'HEAD') {
       res.end();
       return true;
     }
 
-    fs.createReadStream(targetPath).pipe(res);
+    const stream = fs.createReadStream(targetPath);
+    if (compressionStream) {
+      stream.pipe(compressionStream).pipe(res);
+    } else {
+      stream.pipe(res);
+    }
     return true;
   };
 

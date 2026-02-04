@@ -10,12 +10,17 @@
 
   Run `node server.js` to start Node develomment server.
 
-  ### Production build
+  ### Production build (recommended for fast loads)
 
   Run `npm run build` to create the production build.
 
   Run `npm run preview` to serve the production build locally.
 
+  For the Node server, build first so it can serve the optimized `dist` bundle:
+
+  ```
+  npm run build
+  npm run server
   ```
   ### Contact form email
 
