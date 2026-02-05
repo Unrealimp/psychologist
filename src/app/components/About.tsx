@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type WheelEvent } from 'react';
 import { ArrowLeft, ArrowRight, Award, BookOpen, Clock, GraduationCap, HeartHandshake } from 'lucide-react';
 import { useSiteData, type Certificate } from '@/app/context/SiteDataContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/app/components/ui/dialog';
+import { buildSrcSet, getResponsiveMeta, normalizeImageSrc } from '@/app/utils/responsiveImages';
 
 export function About() {
   const { siteData } = useSiteData();
@@ -45,6 +46,12 @@ export function About() {
       behavior: 'auto'
     });
   };
+
+  const selectedMeta = selectedCertificate ? getResponsiveMeta(selectedCertificate.imageUrl) : undefined;
+  const selectedSrcSet =
+    selectedCertificate && selectedMeta
+      ? buildSrcSet(selectedCertificate.imageUrl, selectedMeta.widths)
+      : undefined;
 
   useEffect(() => {
     updateScrollButtons();
@@ -163,23 +170,35 @@ export function About() {
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth touch-pan-x overscroll-x-contain overscroll-y-none [&::-webkit-scrollbar]:hidden"
               >
-                {siteData.certificates.map((certificate) => (
-                  <button
-                    key={certificate.id}
-                    type="button"
-                    onClick={() => setSelectedCertificate(certificate)}
-                    className="min-w-[260px] w-[280px] flex-shrink-0 snap-start text-left rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
-                  >
-                    <div className="aspect-[4/3] overflow-hidden rounded-xl bg-gray-100">
-                      <img
-                        src={certificate.imageUrl}
-                        alt={certificate.title}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <div className="mt-3 text-sm font-medium text-gray-800">{certificate.title}</div>
-                  </button>
-                ))}
+                {siteData.certificates.map((certificate) => {
+                  const certMeta = getResponsiveMeta(certificate.imageUrl);
+                  const certSrcSet = certMeta ? buildSrcSet(certificate.imageUrl, certMeta.widths) : undefined;
+                  const certSrc = normalizeImageSrc(certificate.imageUrl);
+
+                  return (
+                    <button
+                      key={certificate.id}
+                      type="button"
+                      onClick={() => setSelectedCertificate(certificate)}
+                      className="min-w-[260px] w-[280px] flex-shrink-0 snap-start text-left rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                    >
+                      <div className="aspect-[4/3] overflow-hidden rounded-xl bg-gray-100">
+                        <img
+                          src={certSrc}
+                          alt={certificate.title}
+                          srcSet={certSrcSet}
+                          sizes="280px"
+                          loading="lazy"
+                          decoding="async"
+                          width={certMeta?.width}
+                          height={certMeta?.height}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="mt-3 text-sm font-medium text-gray-800">{certificate.title}</div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ) : (
@@ -217,8 +236,14 @@ export function About() {
                 {/* Важно: никаких w-full/h-full у картинки */}
                 <div className="px-4 pb-4">
                   <img
-                    src={selectedCertificate.imageUrl}
+                    src={normalizeImageSrc(selectedCertificate.imageUrl)}
                     alt={selectedCertificate.title}
+                    srcSet={selectedSrcSet}
+                    sizes="(min-width: 1024px) 800px, 95vw"
+                    loading="lazy"
+                    decoding="async"
+                    width={selectedMeta?.width}
+                    height={selectedMeta?.height}
                     className="
                       block
                       w-auto h-auto

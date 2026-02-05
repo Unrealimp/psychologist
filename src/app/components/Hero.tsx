@@ -1,4 +1,5 @@
 import { useSiteData } from '@/app/context/SiteDataContext';
+import { buildSrcSet, getResponsiveMeta, normalizeImageSrc } from '@/app/utils/responsiveImages';
 
 export function Hero() {
   const { siteData } = useSiteData();
@@ -6,6 +7,10 @@ export function Hero() {
   if (!siteData) {
     return null;
   }
+
+  const normalizedProfileSrc = normalizeImageSrc(siteData.profileImageUrl);
+  const profileMeta = getResponsiveMeta(siteData.profileImageUrl);
+  const profileSrcSet = profileMeta ? buildSrcSet(siteData.profileImageUrl, profileMeta.widths) : undefined;
   
   const scrollToContact = () => {
     const element = document.getElementById('contact');
@@ -37,8 +42,15 @@ export function Hero() {
           <div className="relative">
             <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src={siteData.profileImageUrl}
+                src={normalizedProfileSrc}
                 alt={`Психолог ${siteData.psychologistName}`}
+                srcSet={profileSrcSet}
+                sizes="(min-width: 1024px) 40vw, (min-width: 768px) 50vw, 90vw"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+                width={profileMeta?.width}
+                height={profileMeta?.height}
                 className="w-full h-full object-cover"
               />
             </div>
