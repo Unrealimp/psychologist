@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const distPath = path.join(__dirname, 'dist');
+const uploadsDir = process.env.UPLOADS_DIR || path.join(__dirname, 'public', 'images');
 const dataDir = path.join(__dirname, 'data');
 const siteDataPath = path.join(dataDir, 'site-data.json');
 const siteDataTemplatePath = path.join(dataDir, 'site-data.template.json');
@@ -273,6 +274,12 @@ const ensureDataDir = () => {
   }
 };
 
+const ensureUploadsDir = () => {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+};
+
 const loadJsonFile = (filePath) => {
   const raw = fs.readFileSync(filePath, 'utf8');
   return JSON.parse(raw);
@@ -283,6 +290,65 @@ const isObject = (value) => value && typeof value === 'object' && !Array.isArray
 
 const isStringArray = (value) =>
   Array.isArray(value) && value.every((item) => typeof item === 'string');
+
+const DATA_URL_REGEX = /^data:(image\/[a-z0-9.+-]+);base64,(.+)$/i;
+const MIME_EXTENSION_MAP = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/avif': 'avif',
+  'image/svg+xml': 'svg',
+  'image/gif': 'gif'
+};
+
+const saveDataUrlImage = (dataUrl, prefix) => {
+  if (!isString(dataUrl)) return null;
+  const match = DATA_URL_REGEX.exec(dataUrl);
+  if (!match) return null;
+
+  const mimeType = match[1].toLowerCase();
+  const ext = MIME_EXTENSION_MAP[mimeType] || 'bin';
+  const base64Payload = match[2].replace(/\s+/g, '');
+
+  try {
+    const buffer = Buffer.from(base64Payload, 'base64');
+    ensureUploadsDir();
+    const filename = `${prefix}-${Date.now()}-${crypto.randomBytes(4).toString('hex')}.${ext}`;
+    fs.writeFileSync(path.join(uploadsDir, filename), buffer);
+    return `/images/${filename}`;
+  } catch (error) {
+    console.error('Failed to save uploaded image:', error);
+    return null;
+  }
+};
+
+const replaceDataUrls = (updates) => {
+  if (!updates || typeof updates !== 'object') return updates;
+  const next = { ...updates };
+
+  if (isString(next.profileImageUrl) && next.profileImageUrl.startsWith('data:image')) {
+    const storedUrl = saveDataUrlImage(next.profileImageUrl, 'profile');
+    if (storedUrl) {
+      next.profileImageUrl = storedUrl;
+    }
+  }
+
+  if (Array.isArray(next.certificates)) {
+    next.certificates = next.certificates.map((certificate) => {
+      if (!certificate || typeof certificate !== 'object') return certificate;
+      const imageUrl = certificate.imageUrl;
+      if (isString(imageUrl) && imageUrl.startsWith('data:image')) {
+        const storedUrl = saveDataUrlImage(imageUrl, `certificate-${certificate.id || 'new'}`);
+        if (storedUrl) {
+          return { ...certificate, imageUrl: storedUrl };
+        }
+      }
+      return certificate;
+    });
+  }
+
+  return next;
+};
 
 const isCertificate = (value) =>
   isObject(value) && isString(value.id) && isString(value.title) && isString(value.imageUrl);
@@ -689,6 +755,7 @@ const loadSiteData = () => {
 };
 
 ensureDataDir();
+ensureUploadsDir();
 if (!fs.existsSync(siteDataPath)) {
   restoreFromTemplate('missing');
 }
@@ -764,7 +831,8 @@ const server = http.createServer(async (req, res) => {
 
       try {
         const body = await readRequestBody(req);
-        const updates = JSON.parse(body || '{}');
+        const rawUpdates = JSON.parse(body || '{}');
+        const updates = replaceDataUrls(rawUpdates);
         const validation = validateSiteDataUpdate(updates);
         if (!validation.ok) {
           return json(res, 400, { error: validation.error });

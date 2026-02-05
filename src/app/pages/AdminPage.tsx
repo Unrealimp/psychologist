@@ -373,10 +373,10 @@ export function AdminPage() {
                     </div>
                     <div className="flex-1 space-y-3">
                       <input
-                        type="url"
+                        type="text"
                         value={formData.profileImageUrl}
                         onChange={(e) => setFormData({ ...formData, profileImageUrl: e.target.value })}
-                        placeholder="Ссылка на изображение"
+                        placeholder="/images/..."
                         className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                       />
                       <input
@@ -388,7 +388,8 @@ export function AdminPage() {
                     </div>
                   </div>
                   <p className="text-xs text-gray-500">
-                    Можно указать ссылку или загрузить файл — изображение сохранится в браузере.
+                    Можно указать ссылку или загрузить файл — после сохранения изображение будет доступно по пути
+                    <span className="ml-1 font-mono">/images/...</span>.
                   </p>
                 </div>
               </div>
@@ -537,10 +538,10 @@ export function AdminPage() {
                   <div>
                     <label className="block text-sm mb-1">Ссылка на изображение</label>
                     <input
-                      type="url"
+                      type="text"
                       value={certificate.imageUrl}
                       onChange={(e) => handleCertificateChange(certificate.id, 'imageUrl', e.target.value)}
-                      placeholder="https://..."
+                      placeholder="/images/..."
                       className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                     />
                   </div>
